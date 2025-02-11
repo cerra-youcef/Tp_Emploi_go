@@ -114,6 +114,24 @@ func CreateEvent(event *models.Event) error {
 	return nil
 }
 
+func GetEventsByResourceID(db *sql.DB, resourceID string) ([]*models.Event, error) {
+	rows, err := db.Query("SELECT id, resource_ids, uid, name, start, created_at, updated_at FROM events WHERE resource_ids LIKE ?", "%"+resourceID+"%")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var events []*models.Event
+	for rows.Next() {
+		var event models.Event
+		if err := rows.Scan(&event.ID, &event.RessourceIDs, &event.UID, &event.Name, &event.Start, &event.CreatedAt, &event.UpdatedAt); err != nil {
+			return nil, err
+		}
+		events = append(events, &event)
+	}
+	return events, nil
+}
+
 // UpdateEvent met à jour un événement existant.
 func UpdateEvent(id uuid.UUID, event *models.Event) error {
 	db, err := helpers.OpenDB()

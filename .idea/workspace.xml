@@ -5,9 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7f226e5a-3e9a-4bf6-9c25-548ecded4ae9" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/api/config/config.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/config/config.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/timetable/timetable.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/timetable/timetable.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/models/Event.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/models/Event.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/repositories/Eventsrep/event.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/repositories/Eventsrep/event.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/services/EventsSrv/event.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/EventsSrv/event.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -108,7 +109,7 @@
       <updated>1739142533898</updated>
       <workItem from="1739142535292" duration="1680000" />
       <workItem from="1739214620630" duration="446000" />
-      <workItem from="1739215078646" duration="25367000" />
+      <workItem from="1739215078646" duration="26989000" />
     </task>
     <servers />
   </component>

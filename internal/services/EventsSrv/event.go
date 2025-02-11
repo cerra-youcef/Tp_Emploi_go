@@ -5,8 +5,15 @@ import (
 "middleware/example/internal/models"
 "middleware/example/internal/repositories/Eventsrep"
 "net/http" // Ajoutez cet import si nécessaire
+"database/sql"
+
 
 )
+
+// GetEventsByResourceID récupère les événements associés à une ressource spécifique.
+func GetEventsByResourceID(db *sql.DB, resourceID string) ([]*models.Event, error) {
+	return Eventsrep.GetEventsByResourceID(db, resourceID)
+}
 
 // GetAllEvents récupère tous les événements.
 func GetAllEvents() ([]models.Event, error) {
