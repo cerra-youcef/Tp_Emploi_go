@@ -6,6 +6,6 @@ import (
 
 type Ressource struct {
 	ID    uuid.UUID `json:"id"`
-	UcaId int       `json:"ucaId"`
+	UcaId int       `json:"uca_id"`
 	Name  string    `json:"name"`
 }

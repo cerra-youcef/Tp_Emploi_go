@@ -12,11 +12,32 @@ import (
 	"net/http"
 )
 
-// DeleteResourceHandler supprime une ressource existante.
-func DeleteResourceHandler(w http.ResponseWriter, r *http.Request) {
-	resourceId := r.Context().Value("resourceId").(uuid.UUID)
 
-	err := RessourcesSrv.DeleteResource(resourceId)
+
+func DeleteResourceHandler(w http.ResponseWriter, r *http.Request) {
+	// Récupérer l'ID de la ressource depuis le contexte
+	resourceIdRaw := r.Context().Value("resourceId")
+	logrus.Infof("Resource ID from context: %v", resourceIdRaw)
+
+	if resourceIdRaw == nil || resourceIdRaw.(string) == "" {
+		http.Error(w, "Missing or invalid resourceId in context", http.StatusBadRequest)
+		logrus.Errorf("Missing or invalid resourceId in context")
+		return
+	}
+
+	// Convertir l'ID en UUID
+	resourceIdStr := resourceIdRaw.(string)
+	resourceId, err := uuid.Parse(resourceIdStr) // Utilisez Parse au lieu de FromString
+	if err != nil {
+		http.Error(w, "Invalid UUID format", http.StatusBadRequest)
+		logrus.Errorf("Invalid UUID format: %s", resourceIdStr)
+		return
+	}
+
+	logrus.Infof("Deleting resource with ID: %s", resourceId)
+
+	// Appeler le service pour supprimer la ressource
+	err = RessourcesSrv.DeleteResource(resourceId)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			http.Error(w, "Resource not found", http.StatusNotFound)
@@ -27,5 +48,6 @@ func DeleteResourceHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Répondre avec un statut 204 No Content
 	w.WriteHeader(http.StatusNoContent)
 }

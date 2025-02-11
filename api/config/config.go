@@ -16,7 +16,8 @@ func SetupRoutes() http.Handler {
 	r.Route("/resources", func(r chi.Router) {
 		r.Get("/", RessourcesControllers.GetAllResourcesHandler) // GET /config/resources
 		r.Post("/", RessourcesControllers.CreateResourceHandler)  // POST /config/resources
-		r.Route("/{id}", func(r chi.Router) {
+		// Route pour les opérations sur une ressource spécifique
+		r.Route("/{id}", func(r chi.Router) { // Assurez-vous que le paramètre s'appelle "{id}"
 			r.Use(controllers.Ctx("resourceId")) // Utiliser controllers.Ctx ici
 			r.Get("/", RessourcesControllers.GetResourceByIDHandler)    // GET /config/resources/{id}
 			r.Put("/", RessourcesControllers.UpdateResourceHandler)     // PUT /config/resources/{id}
