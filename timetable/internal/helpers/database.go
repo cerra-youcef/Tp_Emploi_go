@@ -13,7 +13,7 @@ func InitializeDB(db *sql.DB) error {
 	collectionsTableQuery := `
         CREATE TABLE IF NOT EXISTS collections (
             id TEXT PRIMARY KEY,
-            ucaId INTEGER NOT NULL,
+            uca_id INTEGER NOT NULL,
             name TEXT NOT NULL
         );
     `

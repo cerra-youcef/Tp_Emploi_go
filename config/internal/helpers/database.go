@@ -11,9 +11,9 @@ import (
 func InitializeDB(db *sql.DB) error {
 	// Script SQL pour créer la table `collections` (ressources).
 	collectionsTableQuery := `
-        CREATE TABLE IF NOT EXISTS collections (
+        CREATE TABLE IF NOT EXISTS ressources (
             id TEXT PRIMARY KEY,
-            ucaId INTEGER NOT NULL,
+            uca_id INTEGER NOT NULL,
             name TEXT NOT NULL
         );
     `

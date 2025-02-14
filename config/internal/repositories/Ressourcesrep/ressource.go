@@ -17,7 +17,7 @@ func GetAllResources() ([]models.Ressource, error) {
 
 	query := `
         SELECT id, uca_id, name
-        FROM collections
+        FROM ressources
     `
 
 	rows, err := db.Query(query)
@@ -49,7 +49,7 @@ func GetResourceByID(id uuid.UUID) (*models.Ressource, error) {
 
 	query := `
         SELECT id, uca_id, name
-        FROM collections
+        FROM ressources
         WHERE id = ?
     `
 
@@ -78,7 +78,7 @@ func CreateResource(resource *models.Ressource) error {
 	defer helpers.CloseDB(db)
 
 	query := `
-        INSERT INTO collections (id, uca_id, name)
+        INSERT INTO ressources (id, uca_id, name)
         VALUES (?, ?, ?)
     `
 
@@ -104,7 +104,7 @@ func UpdateResource(id uuid.UUID, resource *models.Ressource) error {
 	defer helpers.CloseDB(db)
 
 	query := `
-        UPDATE collections
+        UPDATE ressources
         SET uca_id = ?, name = ?
         WHERE id = ?
     `
@@ -131,7 +131,7 @@ func DeleteResource(id uuid.UUID) error {
 	defer helpers.CloseDB(db)
 
 	query := `
-        DELETE FROM collections
+        DELETE FROM ressources
         WHERE id = ?
     `
 
