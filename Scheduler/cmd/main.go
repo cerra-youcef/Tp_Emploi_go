@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
-	"time"
+
 
 	"github.com/google/uuid"
 	"scheduler/internal/models"
@@ -84,19 +84,17 @@ func generateICal(events []models.Event) string {
 	ical.WriteString("VERSION:2.0\n")
 	ical.WriteString("CALSCALE:GREGORIAN\n")
 
-	for _, event := range events {
+	// Ajouter chaque événement avec un espace supplémentaire entre eux
+	for i, event := range events {
 		ical.WriteString(generateICalEvent(event))
+		// Ajouter un espace vide entre les événements, sauf après le dernier
+		if i < len(events)-1 {
+			ical.WriteString("\n") // Ligne vide pour séparer les événements
+		}
 	}
 
 	ical.WriteString("END:VCALENDAR\n")
 	return ical.String()
-}
-
-// Simule l'envoi des événements vers une MQ
-func sendEventsToMQ(events []models.Event) {
-	for _, event := range events {
-		fmt.Printf("Sending event to MQ: %s (%s)\n", event.Name, event.ID)
-	}
 }
 
 func main() {
@@ -108,13 +106,7 @@ func main() {
 		log.Fatalf("Error fetching timetables: %v", err)
 	}
 
-	// Afficher les emplois du temps récupérés
-	fmt.Println("Fetched Timetables:")
-	for _, t := range timetables {
-		fmt.Printf("ID: %s, UCA ID: %d, Name: %s\n", t.ID, t.UcaId, t.Name)
-	}
-
-	// Étape 2 : Pour chaque emploi du temps, récupérer les événements depuis l'API UCA
+	// Traiter chaque emploi du temps
 	for _, timetable := range timetables {
 		fmt.Printf("\nFetching events for timetable: %s (UCA ID: %d)\n", timetable.Name, timetable.UcaId)
 
@@ -125,19 +117,13 @@ func main() {
 			continue
 		}
 
-		// Afficher les événements récupérés
-		fmt.Printf("Fetched %d events for timetable %s:\n", len(events), timetable.Name)
-		for _, event := range events {
-			fmt.Printf("- Event: %s, Start: %s, End: %s, Location: %s\n",
-				event.Name, event.Start.Format(time.RFC3339), event.End, event.Location)
-		}
-
 		// Générer et afficher la représentation iCalendar
-		icalContent := generateICal(events)
-		fmt.Printf("\nGenerated iCalendar for timetable %s:\n%s\n", timetable.Name, icalContent)
-
-		// Envoyer les événements vers la MQ
-		sendEventsToMQ(events)
+		if len(events) > 0 {
+			fmt.Printf("\nGenerated iCalendar for timetable %s:\n", timetable.Name)
+			fmt.Println(generateICal(events))
+		} else {
+			fmt.Printf("No events found for timetable %s.\n", timetable.Name)
+		}
 	}
 
 	fmt.Println("\nScheduler execution completed.")
