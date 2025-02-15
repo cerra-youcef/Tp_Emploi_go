@@ -1,13 +1,14 @@
 module scheduler
 
-go 1.19
+go 1.22.0
+
+toolchain go1.23.1
 
 require (
-
-	github.com/arran4/golang-ical v0.3.2
 	github.com/google/uuid v1.6.0
-	github.com/streadway/amqp v1.1.0
+	github.com/nats-io/nats.go v1.39.0
 	github.com/swaggo/swag v1.16.2
+	github.com/zhashkevych/scheduler v1.0.0
 )
 
 require (
@@ -19,10 +20,14 @@ require (
 	github.com/go-openapi/spec v0.20.4 // indirect
 	github.com/go-openapi/swag v0.19.15 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
+	github.com/klauspost/compress v1.17.11 // indirect
 	github.com/mailru/easyjson v0.7.6 // indirect
-	golang.org/x/net v0.8.0 // indirect
-	golang.org/x/sys v0.6.0 // indirect
-	golang.org/x/text v0.8.0 // indirect
-	golang.org/x/tools v0.7.0 // indirect
+	github.com/nats-io/nkeys v0.4.10 // indirect
+	github.com/nats-io/nuid v1.0.1 // indirect
+	golang.org/x/crypto v0.33.0 // indirect
+	golang.org/x/net v0.25.0 // indirect
+	golang.org/x/sys v0.30.0 // indirect
+	golang.org/x/text v0.22.0 // indirect
+	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

@@ -2,25 +2,59 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
-	"scheduler/internal/edt"
+	"net/http"
+
+	"github.com/google/uuid"
+	"scheduler/internal/models"
 )
 
+// Structure temporaire pour déserialiser la réponse JSON
+type ResourceResponse struct {
+	ID    uuid.UUID `json:"id"`
+	UcaId int       `json:"uca_id"`
+	Name  string    `json:"name"`
+}
+
+// Fonction pour récupérer toutes les ressources depuis l'API "Config"
+func fetchTimetablesFromConfig(configURL string) ([]models.Ressource, error) {
+	resp, err := http.Get(fmt.Sprintf("%s/resources", configURL))
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch resources: %w", err)
+	}
+	defer resp.Body.Close()
+
+	var resources []ResourceResponse
+	if err := json.NewDecoder(resp.Body).Decode(&resources); err != nil {
+		return nil, fmt.Errorf("failed to decode resources response: %w", err)
+	}
+
+	// Convertir les données en modèle interne
+	var timetables []models.Ressource
+	for _, r := range resources {
+		timetables = append(timetables, models.Ressource{
+			ID:    r.ID,
+			UcaId: r.UcaId,
+			Name:  r.Name,
+		})
+	}
+
+	return timetables, nil
+}
+
 func main() {
-	// Retrieve data from EDT
-	events, err := edt.FetchEvents("https://edt.uca.fr/jsp/custom/modules/plannings/anonymous_cal.jsp?resources=13295,13345&projectId=2&calType=ical&nbWeeks=8&displayConfigId=128")
+	configURL := "http://localhost:8080" // URL de l'API Config
+
+	// Récupérer les emplois du temps configurés
+	timetables, err := fetchTimetablesFromConfig(configURL)
 	if err != nil {
-		log.Fatalf("Failed to fetch events: %v", err)
+		log.Fatalf("Error fetching timetables: %v", err)
 	}
 
-	// here you need to do a call request tp an  endpoint
-	//post(events)
-
-	// Parse to JSON and display
-	jsonData, err := json.MarshalIndent(events, "", "  ")
-	if err != nil {
-		log.Fatalf("Failed to marshal events to JSO bN: %v", err)
+	// Afficher les emplois du temps récupérés
+	fmt.Println("Fetched Timetables:")
+	for _, t := range timetables {
+		fmt.Printf("ID: %s, UCA ID: %d, Name: %s\n", t.ID, t.UcaId, t.Name)
 	}
-
-	log.Println(string(jsonData))
 }
