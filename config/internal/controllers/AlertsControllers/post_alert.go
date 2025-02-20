@@ -3,8 +3,8 @@ package AlertsControllers
 import (
 "encoding/json"
 "github.com/sirupsen/logrus"
-"cerra/tp_go/internal/models"
-"cerra/tp_go/internal/services/AlertsSrv"
+"config/internal/models"
+"config/internal/services/AlertsSrv"
 
 "net/http"
 )

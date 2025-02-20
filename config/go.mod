@@ -1,4 +1,4 @@
-module cerra/tp_go
+module config
 
 go 1.19
 

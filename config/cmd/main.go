@@ -8,10 +8,10 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-	"cerra/tp_go/internal/controllers"
-	"cerra/tp_go/internal/controllers/AlertsControllers"
-	"cerra/tp_go/internal/controllers/RessourcesControllers"
-	"cerra/tp_go/internal/helpers"
+	"config/internal/controllers"
+	"config/internal/controllers/AlertsControllers"
+	"config/internal/controllers/RessourcesControllers"
+	"config/internal/helpers"
 	"github.com/go-chi/chi/v5"
 )
 

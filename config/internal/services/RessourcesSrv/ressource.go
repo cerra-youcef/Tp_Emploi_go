@@ -2,8 +2,8 @@ package RessourcesSrv
 
 import (
 "github.com/google/uuid"
-"cerra/tp_go/internal/models"
-"cerra/tp_go/internal/repositories/Ressourcesrep"
+"config/internal/models"
+"config/internal/repositories/Ressourcesrep"
 "net/http" // Ajoutez cet import si nécessaire
 
 )

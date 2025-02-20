@@ -7,7 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid" // Utilisez google/uuid ici
 	"github.com/sirupsen/logrus"
-	"cerra/tp_go/internal/models"
+	"config/internal/models"
 	"net/http"
 )
 

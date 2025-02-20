@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"encoding/json"
 	"github.com/google/uuid"
-	"cerra/tp_go/internal/helpers"
-	"cerra/tp_go/internal/models"
+	"timetable/internal/helpers"
+	"timetable/internal/models"
 )
 
 // GetAllEvents récupère tous les événements.

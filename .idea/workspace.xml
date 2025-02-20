@@ -5,11 +5,44 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7f226e5a-3e9a-4bf6-9c25-548ecded4ae9" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/collections.db" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/internal/helpers/database.go" beforeDir="false" afterPath="$PROJECT_DIR$/config/internal/helpers/database.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/timetable/internal/helpers/database.go" beforeDir="false" afterPath="$PROJECT_DIR$/timetable/internal/helpers/database.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/api/docs.go" beforeDir="false" afterPath="$PROJECT_DIR$/config/api/docs.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/api/swagger.json" beforeDir="false" afterPath="$PROJECT_DIR$/config/api/swagger.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/api/swagger.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/api/swagger.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/cmd/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/config/cmd/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/config/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/internal/controllers/AlertsControllers/delete_alert.go" beforeDir="false" afterPath="$PROJECT_DIR$/config/internal/controllers/AlertsControllers/delete_alert.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/internal/controllers/AlertsControllers/get_alert.go" beforeDir="false" afterPath="$PROJECT_DIR$/config/internal/controllers/AlertsControllers/get_alert.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/internal/controllers/AlertsControllers/get_alerts.go" beforeDir="false" afterPath="$PROJECT_DIR$/config/internal/controllers/AlertsControllers/get_alerts.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/internal/controllers/AlertsControllers/post_alert.go" beforeDir="false" afterPath="$PROJECT_DIR$/config/internal/controllers/AlertsControllers/post_alert.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/internal/controllers/AlertsControllers/update_alert.go" beforeDir="false" afterPath="$PROJECT_DIR$/config/internal/controllers/AlertsControllers/update_alert.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/internal/controllers/RessourcesControllers/delete_ressource.go" beforeDir="false" afterPath="$PROJECT_DIR$/config/internal/controllers/RessourcesControllers/delete_ressource.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/internal/controllers/RessourcesControllers/get_ressource.go" beforeDir="false" afterPath="$PROJECT_DIR$/config/internal/controllers/RessourcesControllers/get_ressource.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/internal/controllers/RessourcesControllers/get_ressources.go" beforeDir="false" afterPath="$PROJECT_DIR$/config/internal/controllers/RessourcesControllers/get_ressources.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/internal/controllers/RessourcesControllers/post_ressource.go" beforeDir="false" afterPath="$PROJECT_DIR$/config/internal/controllers/RessourcesControllers/post_ressource.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/internal/controllers/RessourcesControllers/update_ressource.go" beforeDir="false" afterPath="$PROJECT_DIR$/config/internal/controllers/RessourcesControllers/update_ressource.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/internal/controllers/context.go" beforeDir="false" afterPath="$PROJECT_DIR$/config/internal/controllers/context.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/internal/repositories/Alertsrep/alert.go" beforeDir="false" afterPath="$PROJECT_DIR$/config/internal/repositories/Alertsrep/alert.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/internal/repositories/Ressourcesrep/ressource.go" beforeDir="false" afterPath="$PROJECT_DIR$/config/internal/repositories/Ressourcesrep/ressource.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/internal/services/AlertsSrv/alert.go" beforeDir="false" afterPath="$PROJECT_DIR$/config/internal/services/AlertsSrv/alert.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/internal/services/RessourcesSrv/ressource.go" beforeDir="false" afterPath="$PROJECT_DIR$/config/internal/services/RessourcesSrv/ressource.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/internal/swagger_expose.go" beforeDir="false" afterPath="$PROJECT_DIR$/config/internal/swagger_expose.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/timetable/api/docs.go" beforeDir="false" afterPath="$PROJECT_DIR$/timetable/api/docs.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/timetable/api/swagger.json" beforeDir="false" afterPath="$PROJECT_DIR$/timetable/api/swagger.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/timetable/api/swagger.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/timetable/api/swagger.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/timetable/cmd/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/timetable/cmd/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/timetable/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/timetable/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/timetable/internal/controllers/EventsControllers/delete_event.go" beforeDir="false" afterPath="$PROJECT_DIR$/timetable/internal/controllers/EventsControllers/delete_event.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/timetable/internal/controllers/EventsControllers/get_event.go" beforeDir="false" afterPath="$PROJECT_DIR$/timetable/internal/controllers/EventsControllers/get_event.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/timetable/internal/controllers/EventsControllers/get_event_by_ressource_id.go" beforeDir="false" afterPath="$PROJECT_DIR$/timetable/internal/controllers/EventsControllers/get_event_by_ressource_id.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/timetable/internal/controllers/EventsControllers/get_events.go" beforeDir="false" afterPath="$PROJECT_DIR$/timetable/internal/controllers/EventsControllers/get_events.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/timetable/internal/controllers/EventsControllers/post_event.go" beforeDir="false" afterPath="$PROJECT_DIR$/timetable/internal/controllers/EventsControllers/post_event.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/timetable/internal/controllers/EventsControllers/update_event.go" beforeDir="false" afterPath="$PROJECT_DIR$/timetable/internal/controllers/EventsControllers/update_event.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/timetable/internal/controllers/context.go" beforeDir="false" afterPath="$PROJECT_DIR$/timetable/internal/controllers/context.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/timetable/internal/models/Event.go" beforeDir="false" afterPath="$PROJECT_DIR$/timetable/internal/models/Event.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/timetable/internal/repositories/Eventsrep/event.go" beforeDir="false" afterPath="$PROJECT_DIR$/timetable/internal/repositories/Eventsrep/event.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/timetable/internal/services/EventsSrv/event.go" beforeDir="false" afterPath="$PROJECT_DIR$/timetable/internal/services/EventsSrv/event.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/timetable/internal/swagger_expose.go" beforeDir="false" afterPath="$PROJECT_DIR$/timetable/internal/swagger_expose.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,27 +68,32 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/cerra/Téléchargements/Knapsack_TP1_source&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultGoTemplateProperty": "Go File",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "git-widget-placeholder": "main",
+    "go.import.settings.migrated": "true",
+    "go.sdk.automatically.set": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/home/cerra/Téléchargements/Knapsack_TP1_source",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/Scheduler/internal" />
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/Scheduler" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/internal/models" />
     </key>
@@ -112,7 +150,8 @@
       <workItem from="1739214620630" duration="446000" />
       <workItem from="1739215078646" duration="35972000" />
       <workItem from="1739541091154" duration="33000" />
-      <workItem from="1739552472463" duration="2448000" />
+      <workItem from="1739552472463" duration="2795000" />
+      <workItem from="1739625290300" duration="19317000" />
     </task>
     <servers />
   </component>

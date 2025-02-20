@@ -7,7 +7,7 @@ import (
 
 
 
-	"cerra/tp_go/internal/services/AlertsSrv"
+	"config/internal/services/AlertsSrv"
 
 
 	"net/http"

@@ -4,8 +4,8 @@ package RessourcesControllers
 import (
 	"encoding/json"
 "github.com/sirupsen/logrus"
-"cerra/tp_go/internal/models"
-"cerra/tp_go/internal/services/RessourcesSrv"
+"config/internal/models"
+"config/internal/services/RessourcesSrv"
 "github.com/google/uuid"
 
 "net/http"

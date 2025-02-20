@@ -11,9 +11,9 @@ import (
 
 	
 	
-	"cerra/tp_go/internal/helpers"
-	"cerra/tp_go/internal/controllers/EventsControllers"
-	"cerra/tp_go/internal/controllers"
+	"timetable/internal/helpers"
+	"timetable/internal/controllers/EventsControllers"
+	"timetable/internal/controllers"
 
 	"github.com/go-chi/chi/v5"
 )

@@ -7,7 +7,7 @@ import (
 "net/http"
 "database/sql"
 
-"cerra/tp_go/internal/services/EventsSrv"
+"timetable/internal/services/EventsSrv"
 )
 
 // GetEventsByResourceIDHandler récupère les événements associés à une ressource spécifique.

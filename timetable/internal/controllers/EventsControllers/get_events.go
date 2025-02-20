@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"github.com/sirupsen/logrus"
 
-	"cerra/tp_go/internal/services/EventsSrv"
+	"timetable/internal/services/EventsSrv"
 	"net/http"
 
 )

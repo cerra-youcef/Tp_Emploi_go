@@ -95,7 +95,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "",
 	BasePath:         "/",
 	Schemes:          []string{"http"},
-	Title:            "cerra/tp_go",
+	Title:            "timetable",
 	Description:      "API to manage collections.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

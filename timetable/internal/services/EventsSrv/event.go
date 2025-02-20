@@ -2,8 +2,8 @@ package EventsSrv
 
 import (
 "github.com/google/uuid"
-"cerra/tp_go/internal/models"
-"cerra/tp_go/internal/repositories/Eventsrep"
+"timetable/internal/models"
+"timetable/internal/repositories/Eventsrep"
 "net/http" // Ajoutez cet import si nécessaire
 "database/sql"
 

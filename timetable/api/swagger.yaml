@@ -12,7 +12,7 @@ info:
     email: justine.bachelard@ext.uca.fr
     name: Justine Bachelard.
   description: API to manage collections.
-  title: cerra/tp_go
+  title: timetable
   version: 1.0.0
 paths:
   /collections:

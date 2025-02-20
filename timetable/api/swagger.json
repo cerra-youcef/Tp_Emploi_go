@@ -5,7 +5,7 @@
     "swagger": "2.0",
     "info": {
         "description": "API to manage collections.",
-        "title": "cerra/tp_go",
+        "title": "timetable",
         "contact": {
             "name": "Justine Bachelard.",
             "email": "justine.bachelard@ext.uca.fr"

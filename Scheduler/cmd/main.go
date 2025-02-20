@@ -6,11 +6,10 @@ import (
 	"log"
 	"net/http"
 	"strings"
-
-
 	"github.com/google/uuid"
 	"scheduler/internal/models"
 	"scheduler/internal/edt"
+	"strconv"
 )
 
 // Structure temporaire pour déserialiser la réponse JSON de l'API Config
@@ -106,6 +105,7 @@ func main() {
 		log.Fatalf("Error fetching timetables: %v", err)
 	}
 
+
 	// Traiter chaque emploi du temps
 	for _, timetable := range timetables {
 		fmt.Printf("\nFetching events for timetable: %s (UCA ID: %d)\n", timetable.Name, timetable.UcaId)
@@ -126,5 +126,24 @@ func main() {
 		}
 	}
 
+
+
+
+
+	fmt.Printf(ichouAFFICHAGE(timetables))
+
+
 	fmt.Println("\nScheduler execution completed.")
+}
+
+func ichouAFFICHAGE(timetables []models.Ressource) string {
+	result := ""
+	for _, table := range timetables {
+		if result != "" {
+			result += ","
+		}
+		result += strconv.Itoa(table.UcaId)
+	}
+
+    return "https://edt.uca.fr/jsp/custom/modules/plannings/anonymous_cal.jsp?resources="+result+"&projectId=2&calType=ical&nbWeeks=8&displayConfigId=128"
 }

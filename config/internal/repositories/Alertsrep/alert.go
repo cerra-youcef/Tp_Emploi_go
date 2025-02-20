@@ -3,8 +3,8 @@ package Alertsrep
 import (
 	"database/sql"
 	"github.com/google/uuid"
-	"cerra/tp_go/internal/helpers"
-	"cerra/tp_go/internal/models"
+	"config/internal/helpers"
+	"config/internal/models"
 )
 
 // GetAllAlerts récupère toutes les alertes.

@@ -1,6 +1,6 @@
 package internal
 
-// @title        cerra/tp_go
+// @title        timetable
 // @version      1.0.0
 // @description  API to manage collections.
 

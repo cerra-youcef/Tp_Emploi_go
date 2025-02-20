@@ -2,8 +2,8 @@ package AlertsSrv
 
 import (
 	"github.com/google/uuid"
-	"cerra/tp_go/internal/models"
-	"cerra/tp_go/internal/repositories/Alertsrep"
+	"config/internal/models"
+	"config/internal/repositories/Alertsrep"
 	"net/http" // Ajoutez cet import si nécessaire
 
 )

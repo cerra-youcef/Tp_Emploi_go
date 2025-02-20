@@ -3,8 +3,8 @@ package Ressourcesrep
 import (
 	"database/sql"
 	"github.com/google/uuid"
-	"cerra/tp_go/internal/helpers"
-	"cerra/tp_go/internal/models"
+	"config/internal/helpers"
+	"config/internal/models"
 )
 
 // GetAllResources récupère toutes les ressources.

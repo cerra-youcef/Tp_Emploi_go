@@ -5,8 +5,8 @@ import (
 
 	"encoding/json"
 	"github.com/sirupsen/logrus"
-	"cerra/tp_go/internal/models"
-	"cerra/tp_go/internal/services/EventsSrv"
+	"timetable/internal/models"
+	"timetable/internal/services/EventsSrv"
 	"net/http"
 )
 

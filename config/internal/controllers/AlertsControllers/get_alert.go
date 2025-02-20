@@ -5,7 +5,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/sirupsen/logrus"
 
-	"cerra/tp_go/internal/services/AlertsSrv"
+	"config/internal/services/AlertsSrv"
 	"github.com/google/uuid"
 
 
