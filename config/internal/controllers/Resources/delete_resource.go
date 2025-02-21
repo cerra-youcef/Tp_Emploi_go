@@ -1,43 +1,35 @@
 package Resources
 
 import (
+	"database/sql"
+	"net/http"
 
 	"github.com/google/uuid"
-	"database/sql"
-
-
 	"github.com/sirupsen/logrus"
 
 	"config/internal/services/Resources"
-	"net/http"
 )
 
-
-
 func DeleteResourceHandler(w http.ResponseWriter, r *http.Request) {
-	// Récupérer l'ID de la ressource depuis le contexte
+	// Safely retrieve the resource ID from context
 	resourceIdRaw := r.Context().Value("resourceId")
-	logrus.Infof("Resource ID from context: %v", resourceIdRaw)
-
-	if resourceIdRaw == nil || resourceIdRaw.(string) == "" {
-		http.Error(w, "Missing or invalid resourceId in context", http.StatusBadRequest)
-		logrus.Errorf("Missing or invalid resourceId in context")
+	if resourceIdRaw == nil {
+		http.Error(w, "Missing resourceId in context", http.StatusBadRequest)
+		logrus.Error("Missing resourceId in context")
 		return
 	}
 
-	// Convertir l'ID en UUID
-	resourceIdStr := resourceIdRaw.(string)
-	resourceId, err := uuid.Parse(resourceIdStr) // Utilisez Parse au lieu de FromString
-	if err != nil {
-		http.Error(w, "Invalid UUID format", http.StatusBadRequest)
-		logrus.Errorf("Invalid UUID format: %s", resourceIdStr)
+	// Ensure it's of type uuid.UUID
+	resourceId, ok := resourceIdRaw.(uuid.UUID)
+	if !ok {
+		http.Error(w, "Invalid resourceId format", http.StatusBadRequest)
+		logrus.Errorf("Invalid resourceId type: %T", resourceIdRaw)
 		return
 	}
 
 	logrus.Infof("Deleting resource with ID: %s", resourceId)
 
-	// Appeler le service pour supprimer la ressource
-	err = Resources.DeleteResource(resourceId)
+	err := Resources.DeleteResource(resourceId)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			http.Error(w, "Resource not found", http.StatusNotFound)
@@ -48,6 +40,5 @@ func DeleteResourceHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Répondre avec un statut 204 No Content
 	w.WriteHeader(http.StatusNoContent)
 }
