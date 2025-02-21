@@ -13,12 +13,12 @@ import (
 	"config/internal/controllers/Resources"
 	"config/internal/helpers"
 	"github.com/go-chi/chi/v5"
+	"github.com/swaggo/http-swagger"
+	"github.com/go-chi/cors"
+	_ "config/api"
 )
 
 func main() {
-	// Initialisation de la base de données
-
-
 	db, err := helpers.OpenDB()
 	if err != nil {
 		log.Fatalf("Error while opening database: %s", err.Error())
@@ -30,10 +30,15 @@ func main() {
 		log.Fatalf("Error initializing database: %s", err.Error())
 	}
 
-
-
 	// Création du routeur Chi
 	r := chi.NewRouter()
+
+	r.Use(cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"}, // Allow all origins
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},                    // Allow specific HTTP methods
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},                   // Allow specific headers
+		AllowCredentials: true,                                                      // Allow credentials (cookies, authorization headers)
+	}).Handler)
 
 	// Routes pour les ressources (resources)
 	r.Route("/resources", func(r chi.Router) {
@@ -48,17 +53,22 @@ func main() {
 		})
 	})
 
-		// Routes pour les alertes (alerts)
-		r.Route("/alerts", func(r chi.Router) {
-			r.Get("/", Alerts.GetAllAlertsHandler) // GET /config/alerts
-			r.Post("/", Alerts.CreateAlertHandler)  // POST /config/alerts
-			r.Route("/{alertId}", func(r chi.Router) {
-				r.Use(controllers.Ctx("alertId")) // Utiliser controllers.Ctx ici
-				r.Get("/", Alerts.GetAlertByIDHandler)    // GET /config/alerts/{id}
-				r.Put("/", Alerts.UpdateAlertHandler)     // PUT /config/alerts/{id}
-				r.Delete("/", Alerts.DeleteAlertHandler)   // DELETE /config/alerts/{id}
-			})
+	// Routes pour les alertes (alerts)
+	r.Route("/alerts", func(r chi.Router) {
+		r.Get("/", Alerts.GetAllAlertsHandler) // GET /config/alerts
+		r.Post("/", Alerts.CreateAlertHandler)  // POST /config/alerts
+		r.Route("/{alertId}", func(r chi.Router) {
+			r.Use(controllers.Ctx("alertId")) // Utiliser controllers.Ctx ici
+			r.Get("/", Alerts.GetAlertByIDHandler)    // GET /config/alerts/{id}
+			r.Put("/", Alerts.UpdateAlertHandler)     // PUT /config/alerts/{id}
+			r.Delete("/", Alerts.DeleteAlertHandler)   // DELETE /config/alerts/{id}
 		})
+	})
+
+	// Swagger UI Route
+	r.Get("/swagger/*", httpSwagger.Handler(
+		httpSwagger.URL("http://localhost:8080/swagger/doc.json"), // Point to your swagger.json
+	))
 
 	// Passage de la connexion DB au contexte pour une utilisation globale
 	ctx := context.WithValue(context.Background(), "db", db)

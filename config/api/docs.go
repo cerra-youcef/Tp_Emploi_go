@@ -17,76 +17,7 @@ const docTemplate = `{
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "paths": {
-        "/collections": {
-            "get": {
-                "description": "Get collections.",
-                "tags": [
-                    "collections"
-                ],
-                "summary": "Get collections.",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Collection"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Something went wrong"
-                    }
-                }
-            }
-        },
-        "/collections/{id}": {
-            "get": {
-                "description": "Get a collection.",
-                "tags": [
-                    "collections"
-                ],
-                "summary": "Get a collection.",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Collection UUID formatted ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.Collection"
-                        }
-                    },
-                    "422": {
-                        "description": "Cannot parse id"
-                    },
-                    "500": {
-                        "description": "Something went wrong"
-                    }
-                }
-            }
-        }
-    },
-    "definitions": {
-        "models.Collection": {
-            "type": "object",
-            "properties": {
-                "content": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                }
-            }
-        }
-    }
+    "paths": {}
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
