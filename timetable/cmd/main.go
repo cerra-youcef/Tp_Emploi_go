@@ -12,6 +12,9 @@ import (
 	"timetable/internal/controllers/Events"
 	"timetable/internal/controllers"
 	"github.com/go-chi/chi/v5"
+	"github.com/swaggo/http-swagger"
+	"github.com/go-chi/cors"
+	_ "timetable/api"
 )
 
 func main() {
@@ -26,12 +29,16 @@ func main() {
 	if err := helpers.InitializeDB(db); err != nil {
 		log.Fatalf("Error initializing database: %s", err.Error())
 	}
-	
-
-
 
 	// Création du routeur Chi
 	r := chi.NewRouter()
+
+	r.Use(cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"}, // Allow all origins
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},                    // Allow specific HTTP methods
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},                   // Allow specific headers
+		AllowCredentials: true,                                                      // Allow credentials (cookies, authorization headers)
+	}).Handler)
 
 	// Routes pour les événements (events)
 	r.Route("/events", func(r chi.Router) {
@@ -42,6 +49,11 @@ func main() {
 			r.Get("/", Events.GetEventByIDHandler)    // GET /timetable/events/{id}
 		})
 	})
+
+	// Swagger UI Route
+	r.Get("/swagger/*", httpSwagger.Handler(
+		httpSwagger.URL("http://localhost:8080/swagger/doc.json"), // Point to your swagger.json
+	))
 
 	// Passage de la connexion DB au contexte pour une utilisation globale
 	ctx := context.WithValue(context.Background(), "db", db)

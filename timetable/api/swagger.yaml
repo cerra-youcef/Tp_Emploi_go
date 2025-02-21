@@ -1,56 +1,145 @@
 basePath: /
 definitions:
-  models.Collection:
+  models.Event:
     properties:
-      content:
+      created_at:
+        description: Date de création
+        type: string
+      description:
+        description: Description de l'événement
+        type: string
+      dtStamp:
+        description: Horodatage
+        type: string
+      end:
+        description: Heure de fin (chaîne pour compatibilité)
         type: string
       id:
+        description: Identifiant unique généré localement
+        type: string
+      location:
+        description: Lieu de l'événement
+        type: string
+      name:
+        description: Nom de l'événement
+        type: string
+      resourceIds:
+        description: IDs des ressources associées
+        items:
+          type: string
+        type: array
+      start:
+        description: Heure de début
+        type: string
+      uid:
+        description: UID de l'événement
+        type: string
+      updated_at:
+        description: Dernière mise à jour
         type: string
     type: object
 info:
   contact:
-    email: justine.bachelard@ext.uca.fr
-    name: Justine Bachelard.
-  description: API to manage collections.
-  title: timetable
+    email: beldjilaliyanis@gmail.com, cerrafr31@gmail.com
+    name: Yanis BELDJILALI, Adel CERRA
+  description: API to manage events in the timetable.
+  title: timetable API
   version: 1.0.0
 paths:
-  /collections:
+  /events:
     get:
-      description: Get collections.
+      consumes:
+      - application/json
+      description: Fetches all events from the database, or filter events by the provided
+        resource ID if specified.
+      parameters:
+      - description: Resource ID
+        in: query
+        name: resourceId
+        type: string
+      produces:
+      - application/json
       responses:
         "200":
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.Collection'
+              $ref: '#/definitions/models.Event'
             type: array
+        "400":
+          description: Invalid resource ID format
+          schema:
+            type: string
         "500":
-          description: Something went wrong
-      summary: Get collections.
+          description: Internal server error
+          schema:
+            type: string
+      summary: Get all events or filter by resource ID
       tags:
-      - collections
-  /collections/{id}:
-    get:
-      description: Get a collection.
+      - events
+    post:
+      consumes:
+      - application/json
+      description: Creates a new event in the system. The event must include details
+        like the event name, description, start time, and resource associations.
       parameters:
-      - description: Collection UUID formatted ID
+      - description: Event to create
+        in: body
+        name: event
+        required: true
+        schema:
+          $ref: '#/definitions/models.Event'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Event created successfully
+          schema:
+            $ref: '#/definitions/models.Event'
+        "400":
+          description: Invalid request body
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Create a new event
+      tags:
+      - events
+  /events/{eventId}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves an event by its unique ID from the database
+      parameters:
+      - description: Event ID
         in: path
-        name: id
+        name: eventId
         required: true
         type: string
+      produces:
+      - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Collection'
-        "422":
-          description: Cannot parse id
+            $ref: '#/definitions/models.Event'
+        "400":
+          description: Invalid Event ID
+          schema:
+            type: string
+        "404":
+          description: Event not found
+          schema:
+            type: string
         "500":
-          description: Something went wrong
-      summary: Get a collection.
+          description: Internal server error
+          schema:
+            type: string
+      summary: Get event by ID
       tags:
-      - collections
+      - events
 schemes:
 - http
 swagger: "2.0"

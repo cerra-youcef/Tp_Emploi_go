@@ -10,49 +10,122 @@ const docTemplate = `{
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
         "contact": {
-            "name": "Justine Bachelard.",
-            "email": "justine.bachelard@ext.uca.fr"
+            "name": "Yanis BELDJILALI, Adel CERRA",
+            "email": "beldjilaliyanis@gmail.com, cerrafr31@gmail.com"
         },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/collections": {
+        "/events": {
             "get": {
-                "description": "Get collections.",
-                "tags": [
-                    "collections"
+                "description": "Fetches all events from the database, or filter events by the provided resource ID if specified.",
+                "consumes": [
+                    "application/json"
                 ],
-                "summary": "Get collections.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Get all events or filter by resource ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Resource ID",
+                        "name": "resourceId",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Collection"
+                                "$ref": "#/definitions/models.Event"
                             }
                         }
                     },
+                    "400": {
+                        "description": "Invalid resource ID format",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
                     "500": {
-                        "description": "Something went wrong"
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new event in the system. The event must include details like the event name, description, start time, and resource associations.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Create a new event",
+                "parameters": [
+                    {
+                        "description": "Event to create",
+                        "name": "event",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Event"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Event created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.Event"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 }
             }
         },
-        "/collections/{id}": {
+        "/events/{eventId}": {
             "get": {
-                "description": "Get a collection.",
-                "tags": [
-                    "collections"
+                "description": "Retrieves an event by its unique ID from the database",
+                "consumes": [
+                    "application/json"
                 ],
-                "summary": "Get a collection.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Get event by ID",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Collection UUID formatted ID",
-                        "name": "id",
+                        "description": "Event ID",
+                        "name": "eventId",
                         "in": "path",
                         "required": true
                     }
@@ -61,27 +134,80 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Collection"
+                            "$ref": "#/definitions/models.Event"
                         }
                     },
-                    "422": {
-                        "description": "Cannot parse id"
+                    "400": {
+                        "description": "Invalid Event ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Event not found",
+                        "schema": {
+                            "type": "string"
+                        }
                     },
                     "500": {
-                        "description": "Something went wrong"
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 }
             }
         }
     },
     "definitions": {
-        "models.Collection": {
+        "models.Event": {
             "type": "object",
             "properties": {
-                "content": {
+                "created_at": {
+                    "description": "Date de création",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "Description de l'événement",
+                    "type": "string"
+                },
+                "dtStamp": {
+                    "description": "Horodatage",
+                    "type": "string"
+                },
+                "end": {
+                    "description": "Heure de fin (chaîne pour compatibilité)",
                     "type": "string"
                 },
                 "id": {
+                    "description": "Identifiant unique généré localement",
+                    "type": "string"
+                },
+                "location": {
+                    "description": "Lieu de l'événement",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Nom de l'événement",
+                    "type": "string"
+                },
+                "resourceIds": {
+                    "description": "IDs des ressources associées",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "start": {
+                    "description": "Heure de début",
+                    "type": "string"
+                },
+                "uid": {
+                    "description": "UID de l'événement",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "Dernière mise à jour",
                     "type": "string"
                 }
             }
@@ -95,8 +221,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "",
 	BasePath:         "/",
 	Schemes:          []string{"http"},
-	Title:            "timetable",
-	Description:      "API to manage collections.",
+	Title:            "timetable API",
+	Description:      "API to manage events in the timetable.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

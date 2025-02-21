@@ -10,7 +10,17 @@ import (
 	"net/http"
 )
 
-// CreateEventHandler crée un nouvel événement.
+// CreateEventHandler creates a new event.
+// @Summary Create a new event
+// @Description Creates a new event in the system. The event must include details like the event name, description, start time, and resource associations.
+// @Tags events
+// @Accept json
+// @Produce json
+// @Param event body models.Event true "Event to create"
+// @Success 201 {object} models.Event "Event created successfully"
+// @Failure 400 {string} string "Invalid request body"
+// @Failure 500 {string} string "Internal server error"
+// @Router /events [post]
 func CreateEventHandler(w http.ResponseWriter, r *http.Request) {
 	var newEvent models.Event
 	err := json.NewDecoder(r.Body).Decode(&newEvent)

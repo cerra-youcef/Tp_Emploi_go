@@ -10,7 +10,18 @@ import (
 	"net/http"
 )
 
-// GetEventByIDHandler récupère un événement par son ID.
+// GetEventByIDHandler retrieves an event by its ID.
+// @Summary Get event by ID
+// @Description Retrieves an event by its unique ID from the database
+// @Tags events
+// @Accept json
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Success 200 {object} models.Event
+// @Failure 400 {string} string "Invalid Event ID"
+// @Failure 404 {string} string "Event not found"
+// @Failure 500 {string} string "Internal server error"
+// @Router /events/{eventId} [get]
 func GetEventByIDHandler(w http.ResponseWriter, r *http.Request) {
 	eventID := r.Context().Value("eventId").(uuid.UUID)
 

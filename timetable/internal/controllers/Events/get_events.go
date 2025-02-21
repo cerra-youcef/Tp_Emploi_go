@@ -9,7 +9,17 @@ import (
 	"net/http"
 )
 
-// GetAllEventsHandler récupère tous les événements.
+// GetEventsHandler retrieves all events or events filtered by resource ID.
+// @Summary Get all events or filter by resource ID
+// @Description Fetches all events from the database, or filter events by the provided resource ID if specified.
+// @Tags events
+// @Accept json
+// @Produce json
+// @Param resourceId query string false "Resource ID" 
+// @Success 200 {array} models.Event
+// @Failure 400 {string} string "Invalid resource ID format"
+// @Failure 500 {string} string "Internal server error"
+// @Router /events [get]
 func GetEventsHandler(w http.ResponseWriter, r *http.Request) {
 	resourceId := r.URL.Query().Get("resourceId")
 	var events []models.Event
