@@ -32,19 +32,3 @@ func CreateEvent(event *models.Event) error {
 	}
 	return Events.CreateEvent(event)
 }
-
-// UpdateEvent met à jour un événement existant.
-func UpdateEvent(id uuid.UUID, event *models.Event) error {
-	if event.ID != id {
-		return &models.CustomError{
-			Message: "ID mismatch between URL and request body",
-			Code:    http.StatusBadRequest,
-		}
-	}
-	return Events.UpdateEvent(id, event)
-}
-
-// DeleteEvent supprime un événement existant.
-func DeleteEvent(id uuid.UUID) error {
-	return Events.DeleteEvent(id)
-}
