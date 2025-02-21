@@ -7,7 +7,18 @@ import (
 	"net/http"
 )
 
-// DeleteAlertHandler supprime une alerte par son ID.
+// DeleteAlertHandler deletes an alert by its ID.
+// @Summary Delete an alert by its ID
+// @Description This endpoint deletes an alert from the system using its unique identifier (ID).
+// @Tags Alerts
+// @Accept  json
+// @Produce  json
+// @Param alertId path string true "Alert ID"
+// @Success 204 "No content"
+// @Failure 400 "Invalid request"
+// @Failure 404 "Alert not found"
+// @Failure 500 "Internal server error"
+// @Router /alerts/{alertId} [delete]
 func DeleteAlertHandler(w http.ResponseWriter, r *http.Request) {
 	// Récupérer l'ID de l'alerte depuis le contexte.
 	alertId := r.Context().Value("alertId").(uuid.UUID)

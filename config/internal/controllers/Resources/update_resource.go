@@ -10,7 +10,19 @@ import (
 
 )
 
-// UpdateResourceHandler met à jour une ressource existante.
+// UpdateResourceHandler updates an existing resource.
+// @Summary Update an existing resource
+// @Description This endpoint allows the updating of a resource based on its ID.
+// @Tags Resources
+// @Accept json
+// @Produce json
+// @Param resourceId path string true "Resource ID"  // Param for resource ID passed in URL path
+// @Param resource body models.Resource true "Updated resource object" // Resource object in the body of the request
+// @Success 204 "Resource successfully updated"  // No content when update is successful
+// @Failure 400 {string} string "Invalid request body or invalid resource ID"
+// @Failure 404 {string} string "Resource not found"
+// @Failure 500 {string} string "Failed to update resource"
+// @Router /resources/{resourceId} [put]
 func UpdateResourceHandler(w http.ResponseWriter, r *http.Request) {
 	resourceId := r.Context().Value("resourceId").(uuid.UUID)
 

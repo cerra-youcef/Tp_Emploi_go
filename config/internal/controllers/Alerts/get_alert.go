@@ -10,7 +10,18 @@ import (
 	"net/http"
 )
 
-// GetAlertByIDHandler gère la récupération d'une alerte par son ID.
+// GetAlertByIDHandler retrieves an alert by its ID.
+// @Summary Get an alert by its ID
+// @Description This endpoint retrieves an alert by its unique identifier (ID).
+// @Tags Alerts
+// @Accept  json
+// @Produce  json
+// @Param alertId path string true "Alert ID"
+// @Success 200 {object} models.Alert "Alert found"
+// @Failure 400 {string} string "Invalid request"
+// @Failure 404 {string} string "Alert not found"
+// @Failure 500 {string} string "Internal server error"
+// @Router /alerts/{alertId} [get]
 func GetAlertByIDHandler(w http.ResponseWriter, r *http.Request) {
 
 	alertIdRaw := r.Context().Value("alertId") 

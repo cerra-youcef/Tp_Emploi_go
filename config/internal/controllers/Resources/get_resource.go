@@ -11,8 +11,16 @@ import (
 "net/http"
 )
 
-
-// GetResourceByIDHandler récupère une ressource par son ID.
+// GetResourceByIDHandler retrieves a resource by its ID.
+// @Summary Get a resource by its ID
+// @Description This endpoint retrieves a resource by the provided resource ID.
+// @Tags Resources
+// @Param resourceId path string true "Resource ID" example("123e4567-e89b-12d3-a456-426614174000")
+// @Success 200 {object} models.Resource "Resource found"
+// @Failure 400 {string} string "Invalid resource ID"
+// @Failure 404 {string} string "Resource not found"
+// @Failure 500 {string} string "Internal server error"
+// @Router /resources/{resourceId} [get]
 func GetResourceByIDHandler(w http.ResponseWriter, r *http.Request) {
 	// Récupérer l'ID de la ressource depuis le contexte.
 	resourceId := r.Context().Value("resourceId").(uuid.UUID)

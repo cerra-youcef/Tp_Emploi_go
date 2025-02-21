@@ -9,7 +9,15 @@ import (
 "net/http"
 )
 
-// GetAllAlertsHandler gère la récupération de toutes les alertes.
+// GetAllAlertsHandler retrieves all alerts.
+// @Summary Get all alerts
+// @Description This endpoint retrieves a list of all alerts.
+// @Tags Alerts
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} models.Alert "List of alerts"
+// @Failure 500 {string} string "Internal server error"
+// @Router /alerts [get]
 func GetAllAlertsHandler(w http.ResponseWriter, r *http.Request) {
 	alerts, err := Alerts.GetAllAlerts()
 	if err != nil {

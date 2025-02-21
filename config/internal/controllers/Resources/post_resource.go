@@ -10,7 +10,17 @@ import (
 
 )
 
-// CreateResourceHandler crée une nouvelle ressource.
+// CreateResourceHandler creates a new resource.
+// @Summary Create a new resource
+// @Description This endpoint creates a new resource in the system.
+// @Tags Resources
+// @Accept json
+// @Produce json
+// @Param resource body models.Resource true "Resource object"
+// @Success 201 {object} models.Resource "The newly created resource"
+// @Failure 400 {string} string "Invalid request body"
+// @Failure 500 {string} string "Failed to create resource"
+// @Router /resources [post]
 func CreateResourceHandler(w http.ResponseWriter, r *http.Request) {
 	var newResource models.Resource
 	err := json.NewDecoder(r.Body).Decode(&newResource)

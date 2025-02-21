@@ -10,6 +10,16 @@ import (
 	"config/internal/services/Resources"
 )
 
+// DeleteResourceHandler handles the deletion of a resource by its ID.
+// @Summary Delete a resource by its ID
+// @Description This endpoint allows you to delete a resource by providing the resource ID.
+// @Tags Resources
+// @Param resourceId path string true "Resource ID" example("123e4567-e89b-12d3-a456-426614174000")
+// @Success 204 "Resource deleted successfully"
+// @Failure 400 {string} string "Invalid resource ID"
+// @Failure 404 {string} string "Resource not found"
+// @Failure 500 {string} string "Internal server error"
+// @Router /resources/{resourceId} [delete]
 func DeleteResourceHandler(w http.ResponseWriter, r *http.Request) {
 	// Safely retrieve the resource ID from context
 	resourceIdRaw := r.Context().Value("resourceId")

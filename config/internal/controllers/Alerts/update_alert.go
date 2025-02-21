@@ -11,7 +11,19 @@ import (
 	"net/http"
 )
 
-// UpdateAlertHandler gère la mise à jour d'une alerte existante.
+// UpdateAlertHandler updates an existing alert.
+// @Summary Update an alert by its ID
+// @Description This endpoint allows you to update an alert by providing the alert ID and the fields to be updated.
+// @Tags Alerts
+// @Accept json
+// @Produce json
+// @Param alertId path string true "Alert ID" example("123e4567-e89b-12d3-a456-426614174000")
+// @Param alert body models.Alert true "Updated alert object"
+// @Success 204 "Alert updated successfully"
+// @Failure 400 {string} string "Invalid request body"
+// @Failure 404 {string} string "Alert not found"
+// @Failure 500 {string} string "Internal server error"
+// @Router /alerts/{alertId} [put]
 func UpdateAlertHandler(w http.ResponseWriter, r *http.Request) {
 	alertIdRaw := r.Context().Value("alertId") 
 	if alertIdRaw == nil {

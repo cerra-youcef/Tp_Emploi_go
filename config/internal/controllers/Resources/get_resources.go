@@ -8,7 +8,13 @@ import (
 "net/http"
 )
 
-// GetAllResourcesHandler récupère toutes les ressources.
+// GetAllResourcesHandler retrieves all resources.
+// @Summary Get all resources
+// @Description This endpoint retrieves a list of all available resources.
+// @Tags Resources
+// @Success 200 {array} models.Resource "List of resources"
+// @Failure 500 {string} string "Failed to retrieve resources"
+// @Router /resources [get]
 func GetAllResourcesHandler(w http.ResponseWriter, r *http.Request) {
 	resources, err := Resources.GetAllResources()
 	if err != nil {

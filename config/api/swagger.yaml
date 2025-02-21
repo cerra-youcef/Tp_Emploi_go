@@ -1,4 +1,25 @@
 basePath: /
+definitions:
+  models.Alert:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      is_all:
+        type: boolean
+      resourceId:
+        type: string
+    type: object
+  models.Resource:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      uca_id:
+        type: integer
+    type: object
 info:
   contact:
     email: justine.bachelard@ext.uca.fr
@@ -6,7 +27,294 @@ info:
   description: API to manage collections.
   title: config
   version: 1.0.0
-paths: {}
+paths:
+  /alerts:
+    get:
+      consumes:
+      - application/json
+      description: This endpoint retrieves a list of all alerts.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of alerts
+          schema:
+            items:
+              $ref: '#/definitions/models.Alert'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Get all alerts
+      tags:
+      - Alerts
+    post:
+      consumes:
+      - application/json
+      description: This endpoint allows you to create a new alert by providing the
+        necessary details.
+      parameters:
+      - description: Alert object
+        in: body
+        name: alert
+        required: true
+        schema:
+          $ref: '#/definitions/models.Alert'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: The newly created alert
+          schema:
+            $ref: '#/definitions/models.Alert'
+        "400":
+          description: Invalid request body
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Create a new alert
+      tags:
+      - Alerts
+  /alerts/{alertId}:
+    delete:
+      consumes:
+      - application/json
+      description: This endpoint deletes an alert from the system using its unique
+        identifier (ID).
+      parameters:
+      - description: Alert ID
+        in: path
+        name: alertId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+        "400":
+          description: Invalid request
+        "404":
+          description: Alert not found
+        "500":
+          description: Internal server error
+      summary: Delete an alert by its ID
+      tags:
+      - Alerts
+    get:
+      consumes:
+      - application/json
+      description: This endpoint retrieves an alert by its unique identifier (ID).
+      parameters:
+      - description: Alert ID
+        in: path
+        name: alertId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Alert found
+          schema:
+            $ref: '#/definitions/models.Alert'
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "404":
+          description: Alert not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Get an alert by its ID
+      tags:
+      - Alerts
+    put:
+      consumes:
+      - application/json
+      description: This endpoint allows you to update an alert by providing the alert
+        ID and the fields to be updated.
+      parameters:
+      - description: Alert ID
+        example: '"123e4567-e89b-12d3-a456-426614174000"'
+        in: path
+        name: alertId
+        required: true
+        type: string
+      - description: Updated alert object
+        in: body
+        name: alert
+        required: true
+        schema:
+          $ref: '#/definitions/models.Alert'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Alert updated successfully
+        "400":
+          description: Invalid request body
+          schema:
+            type: string
+        "404":
+          description: Alert not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Update an alert by its ID
+      tags:
+      - Alerts
+  /resources:
+    get:
+      description: This endpoint retrieves a list of all available resources.
+      responses:
+        "200":
+          description: List of resources
+          schema:
+            items:
+              $ref: '#/definitions/models.Resource'
+            type: array
+        "500":
+          description: Failed to retrieve resources
+          schema:
+            type: string
+      summary: Get all resources
+      tags:
+      - Resources
+    post:
+      consumes:
+      - application/json
+      description: This endpoint creates a new resource in the system.
+      parameters:
+      - description: Resource object
+        in: body
+        name: resource
+        required: true
+        schema:
+          $ref: '#/definitions/models.Resource'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: The newly created resource
+          schema:
+            $ref: '#/definitions/models.Resource'
+        "400":
+          description: Invalid request body
+          schema:
+            type: string
+        "500":
+          description: Failed to create resource
+          schema:
+            type: string
+      summary: Create a new resource
+      tags:
+      - Resources
+  /resources/{resourceId}:
+    delete:
+      description: This endpoint allows you to delete a resource by providing the
+        resource ID.
+      parameters:
+      - description: Resource ID
+        example: '"123e4567-e89b-12d3-a456-426614174000"'
+        in: path
+        name: resourceId
+        required: true
+        type: string
+      responses:
+        "204":
+          description: Resource deleted successfully
+        "400":
+          description: Invalid resource ID
+          schema:
+            type: string
+        "404":
+          description: Resource not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Delete a resource by its ID
+      tags:
+      - Resources
+    get:
+      description: This endpoint retrieves a resource by the provided resource ID.
+      parameters:
+      - description: Resource ID
+        example: '"123e4567-e89b-12d3-a456-426614174000"'
+        in: path
+        name: resourceId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Resource found
+          schema:
+            $ref: '#/definitions/models.Resource'
+        "400":
+          description: Invalid resource ID
+          schema:
+            type: string
+        "404":
+          description: Resource not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Get a resource by its ID
+      tags:
+      - Resources
+    put:
+      consumes:
+      - application/json
+      description: This endpoint allows the updating of a resource based on its ID.
+      parameters:
+      - description: Resource ID
+        in: path
+        name: resourceId
+        required: true
+        type: string
+      - description: Updated resource object
+        in: body
+        name: resource
+        required: true
+        schema:
+          $ref: '#/definitions/models.Resource'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Resource successfully updated
+        "400":
+          description: Invalid request body or invalid resource ID
+          schema:
+            type: string
+        "404":
+          description: Resource not found
+          schema:
+            type: string
+        "500":
+          description: Failed to update resource
+          schema:
+            type: string
+      summary: Update an existing resource
+      tags:
+      - Resources
 schemes:
 - http
 swagger: "2.0"
