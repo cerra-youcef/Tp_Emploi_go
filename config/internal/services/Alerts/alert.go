@@ -28,12 +28,14 @@ func CreateAlert(alert *models.Alert) error {
 
 // UpdateAlert met à jour une alerte existante.
 func UpdateAlert(id uuid.UUID, alert *models.Alert) error {
-	if alert.ID != id {
+	_, err := GetAlertByID(id)
+	if err != nil {
 		return &models.CustomError{
-			Message: "ID mismatch between URL and request body",
-			Code:    http.StatusBadRequest,
+			Message: "Alert not found ",
+			Code:    http.StatusNotFound,
 		}
 	}
+
 	return Alerts.UpdateAlert(id, alert)
 }
 
