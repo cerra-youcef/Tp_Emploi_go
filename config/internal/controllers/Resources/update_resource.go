@@ -21,11 +21,6 @@ func UpdateResourceHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if updatedResource.ID != resourceId {
-		http.Error(w, "ID mismatch between URL and request body", http.StatusBadRequest)
-		return
-	}
-
 	err = Resources.UpdateResource(resourceId, &updatedResource)
 	if err != nil {
 		if customErr, ok := err.(*models.CustomError); ok {

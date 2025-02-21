@@ -28,12 +28,14 @@ func CreateResource(resource *models.Resource) error {
 
 // UpdateResource met à jour une ressource existante.
 func UpdateResource(id uuid.UUID, resource *models.Resource) error {
-	if resource.ID != id {
+	_, err := GetResourceByID(id)
+	if err != nil {
 		return &models.CustomError{
-			Message: "ID mismatch between URL and request body",
-			Code:    http.StatusBadRequest,
+			Message: "Resource not found ",
+			Code:    http.StatusNotFound,
 		}
 	}
+
 	return Resources.UpdateResource(id, resource)
 }
 
