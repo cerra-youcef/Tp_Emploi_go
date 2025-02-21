@@ -1,4 +1,4 @@
-package EventsControllers
+package Events
 
 import (
 	"github.com/google/uuid"
@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"github.com/sirupsen/logrus"
 	"timetable/internal/models"
-	"timetable/internal/services/EventsSrv"
+	"timetable/internal/services/Events"
 	"net/http"
 
 )
@@ -15,7 +15,7 @@ import (
 func GetEventByIDHandler(w http.ResponseWriter, r *http.Request) {
 	eventID := r.Context().Value("eventId").(uuid.UUID)
 
-	event, err := EventsSrv.GetEventByID(eventID)
+	event, err := Events.GetEventByID(eventID)
 	if err != nil {
 		if customErr, ok := err.(*models.CustomError); ok {
 			http.Error(w, customErr.Message, customErr.Code)

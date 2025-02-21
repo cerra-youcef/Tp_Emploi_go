@@ -10,8 +10,8 @@ import (
 
 func InitializeDB(db *sql.DB) error {
 	// Script SQL pour créer la table `collections` (ressources).
-	collectionsTableQuery := `
-        CREATE TABLE IF NOT EXISTS collections (
+	resourcesTableQuery := `
+        CREATE TABLE IF NOT EXISTS resources (
             id TEXT PRIMARY KEY,
             uca_id INTEGER NOT NULL,
             name TEXT NOT NULL
@@ -23,21 +23,21 @@ func InitializeDB(db *sql.DB) error {
             id TEXT PRIMARY KEY,
             email TEXT NOT NULL,
             is_all BOOLEAN NOT NULL,
-            ressource_id TEXT
+            resource_id TEXT
         );
     `
 	// Script SQL pour créer la table `events`.
 	eventsTableQuery := `
         CREATE TABLE IF NOT EXISTS events (
             id TEXT PRIMARY KEY,
-            ressource_ids TEXT NOT NULL,
+            resource_ids TEXT NOT NULL,
             uid TEXT NOT NULL,
             name TEXT NOT NULL,
             start TEXT NOT NULL
         );
     `
 	// Exécuter les requêtes SQL pour créer les tables.
-	queries := []string{collectionsTableQuery, alertsTableQuery, eventsTableQuery}
+	queries := []string{resourcesTableQuery, alertsTableQuery, eventsTableQuery}
 	for _, query := range queries {
 		_, err := db.Exec(query)
 		if err != nil {
@@ -58,7 +58,7 @@ func GetDBFromContext(ctx context.Context) *sql.DB {
 
 // OpenDB ouvre une connexion à la base de données SQLite.
 func OpenDB() (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", "file:collections.db?cache=shared&mode=rwc")
+	db, err := sql.Open("sqlite3", "file:timetable.db?cache=shared&mode=rwc")
 	if err != nil {
 		log.Fatalf("Error opening database: %v", err)
 		return nil, err

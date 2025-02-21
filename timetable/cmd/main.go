@@ -12,7 +12,7 @@ import (
 	
 	
 	"timetable/internal/helpers"
-	"timetable/internal/controllers/EventsControllers"
+	"timetable/internal/controllers/Events"
 	"timetable/internal/controllers"
 
 	"github.com/go-chi/chi/v5"
@@ -41,13 +41,13 @@ func main() {
 
 	// Routes pour les événements (events)
 	r.Route("/events", func(r chi.Router) {
-		r.Get("/", EventsControllers.GetAllEventsHandler) // GET /timetable/events
-		r.Post("/", EventsControllers.CreateEventHandler) // POST /timetable/events
+		r.Get("/", Events.GetAllEventsHandler) // GET /timetable/events
+		r.Post("/", Events.CreateEventHandler) // POST /timetable/events
 		r.Route("/{eventId}", func(r chi.Router) {
 			r.Use(controllers.Ctx("eventId")) // Utiliser controllers.Ctx ici
-			r.Get("/", EventsControllers.GetEventByIDHandler)    // GET /timetable/events/{id}
-			r.Put("/", EventsControllers.UpdateEventHandler)     // PUT /timetable/events/{id}
-			r.Delete("/", EventsControllers.DeleteEventHandler)   // DELETE /timetable/events/{id}
+			r.Get("/", Events.GetEventByIDHandler)    // GET /timetable/events/{id}
+			r.Put("/", Events.UpdateEventHandler)     // PUT /timetable/events/{id}
+			r.Delete("/", Events.DeleteEventHandler)   // DELETE /timetable/events/{id}
 		})
 	})
 

@@ -1,4 +1,4 @@
-package EventsControllers
+package Events
 
 import (
 "encoding/json"
@@ -7,7 +7,7 @@ import (
 "net/http"
 "database/sql"
 
-"timetable/internal/services/EventsSrv"
+"timetable/internal/services/Events"
 )
 
 // GetEventsByResourceIDHandler récupère les événements associés à une ressource spécifique.
@@ -19,7 +19,7 @@ func GetEventsByResourceIDHandler(w http.ResponseWriter, r *http.Request) {
 	resourceID := chi.URLParam(r, "resourceId")
 
 	// Appeler le service pour obtenir les événements
-	events, err := EventsSrv.GetEventsByResourceID(db, resourceID)
+	events, err := Events.GetEventsByResourceID(db, resourceID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

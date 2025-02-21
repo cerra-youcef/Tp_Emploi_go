@@ -1,10 +1,10 @@
-package EventsControllers
+package Events
 
 import (
 "encoding/json"
 "github.com/sirupsen/logrus"
 "timetable/internal/models"
-"timetable/internal/services/EventsSrv"
+"timetable/internal/services/Events"
 "net/http"
 "github.com/google/uuid"
 
@@ -26,7 +26,7 @@ func UpdateEventHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = EventsSrv.UpdateEvent(eventID, &updatedEvent)
+	err = Events.UpdateEvent(eventID, &updatedEvent)
 	if err != nil {
 		if customErr, ok := err.(*models.CustomError); ok {
 			http.Error(w, customErr.Message, customErr.Code)

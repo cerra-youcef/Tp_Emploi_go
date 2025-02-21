@@ -1,11 +1,11 @@
-package EventsControllers
+package Events
 
 import (
 	"github.com/google/uuid"
 
 
 	"github.com/sirupsen/logrus"
-	"timetable/internal/services/EventsSrv"
+	"timetable/internal/services/Events"
 	"net/http"
 	"database/sql"
 
@@ -16,7 +16,7 @@ import (
 func DeleteEventHandler(w http.ResponseWriter, r *http.Request) {
 	eventID := r.Context().Value("eventId").(uuid.UUID)
 
-	err := EventsSrv.DeleteEvent(eventID)
+	err := Events.DeleteEvent(eventID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			http.Error(w, "Event not found", http.StatusNotFound)
