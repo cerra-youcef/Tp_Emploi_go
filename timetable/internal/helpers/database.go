@@ -9,23 +9,7 @@ import (
 )
 
 func InitializeDB(db *sql.DB) error {
-	// Script SQL pour créer la table `collections` (ressources).
-	resourcesTableQuery := `
-        CREATE TABLE IF NOT EXISTS resources (
-            id TEXT PRIMARY KEY,
-            uca_id INTEGER NOT NULL,
-            name TEXT NOT NULL
-        );
-    `
-	// Script SQL pour créer la table `alerts`.
-	alertsTableQuery := `
-        CREATE TABLE IF NOT EXISTS alerts (
-            id TEXT PRIMARY KEY,
-            email TEXT NOT NULL,
-            is_all BOOLEAN NOT NULL,
-            resource_id TEXT
-        );
-    `
+
 	// Script SQL pour créer la table `events`.
 	eventsTableQuery := `
         CREATE TABLE IF NOT EXISTS events (
