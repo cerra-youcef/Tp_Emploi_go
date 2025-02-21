@@ -22,10 +22,10 @@ definitions:
     type: object
 info:
   contact:
-    email: justine.bachelard@ext.uca.fr
-    name: Justine Bachelard.
-  description: API to manage collections.
-  title: config
+    email: beldjilaliyanis@gmail.com, cerrafr31@gmail.com
+    name: Yanis BELDJILALI, Adel CERRA
+  description: API for managing schedules ("resources") and alerts in the system.
+  title: Config API
   version: 1.0.0
 paths:
   /alerts:

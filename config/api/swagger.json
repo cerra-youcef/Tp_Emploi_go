@@ -4,11 +4,11 @@
     ],
     "swagger": "2.0",
     "info": {
-        "description": "API to manage collections.",
-        "title": "config",
+        "description": "API for managing schedules (\"resources\") and alerts in the system.",
+        "title": "Config API",
         "contact": {
-            "name": "Justine Bachelard.",
-            "email": "justine.bachelard@ext.uca.fr"
+            "name": "Yanis BELDJILALI, Adel CERRA",
+            "email": "beldjilaliyanis@gmail.com, cerrafr31@gmail.com"
         },
         "version": "1.0.0"
     },

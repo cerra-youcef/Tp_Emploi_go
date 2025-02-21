@@ -1,11 +1,11 @@
 package internal
 
-// @title        config
+// @title        Config API
 // @version      1.0.0
-// @description  API to manage collections.
+// @description  API for managing schedules ("resources") and alerts in the system. 
 
-// @contact.name   Justine Bachelard.
-// @contact.email  justine.bachelard@ext.uca.fr
+// @contact.name   Yanis BELDJILALI, Adel CERRA
+// @contact.email  beldjilaliyanis@gmail.com, cerrafr31@gmail.com
 
 // @schemes   http
-// @BasePath  /
+// @BasePath /
