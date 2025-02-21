@@ -5,7 +5,7 @@ import (
 "github.com/google/uuid"
 )
 
-type Ressource struct {
+type Resource struct {
 	ID    uuid.UUID `json:"id"`
 	UcaId int       `json:"uca_id"`
 	Name  string    `json:"name"`

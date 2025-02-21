@@ -7,7 +7,7 @@ import (
 
 type Event struct {
 	ID         uuid.UUID   `json:"id"`          // Identifiant unique généré localement
-	RessourceIDs []uuid.UUID `json:"ressourceIds"` // IDs des ressources associées
+	ResourceIDs []uuid.UUID `json:"resourceIds"` // IDs des ressources associées
 	UID        string      `json:"uid"`         // UID de l'événement
 	Description string     `json:"description"` // Description de l'événement
 	Name       string      `json:"name"`        // Nom de l'événement

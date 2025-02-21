@@ -20,7 +20,7 @@ type ResourceResponse struct {
 }
 
 // Fonction pour récupérer les emplois du temps depuis l'API "Config"
-func fetchTimetablesFromConfig(configURL string) ([]models.Ressource, error) {
+func fetchTimetablesFromConfig(configURL string) ([]Resource, error) {
 	resp, err := http.Get(fmt.Sprintf("%s/resources", configURL))
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch resources: %w", err)
@@ -33,14 +33,14 @@ func fetchTimetablesFromConfig(configURL string) ([]models.Ressource, error) {
 	}
 
 	// Convertir les données en modèle interne
-	var timetables []models.Ressource
+	var timetables []Resource
 	for _, r := range resources {
 		id, err := uuid.Parse(r.ID)
 		if err != nil {
 			log.Printf("Failed to parse UUID for resource ID %s: %v", r.ID, err)
 			continue
 		}
-		timetables = append(timetables, models.Ressource{
+		timetables = append(timetables, Resource{
 			ID:    id,
 			UcaId: r.UcaId,
 			Name:  r.Name,
@@ -136,7 +136,7 @@ func main() {
 	fmt.Println("\nScheduler execution completed.")
 }
 
-func ichouAFFICHAGE(timetables []models.Ressource) string {
+func ichouAFFICHAGE(timetables []Resource) string {
 	result := ""
 	for _, table := range timetables {
 		if result != "" {
