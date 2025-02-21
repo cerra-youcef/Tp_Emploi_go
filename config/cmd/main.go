@@ -9,8 +9,8 @@ import (
 	"syscall"
 	"time"
 	"config/internal/controllers"
-	"config/internal/controllers/AlertsControllers"
-	"config/internal/controllers/RessourcesControllers"
+	"config/internal/controllers/Alerts"
+	"config/internal/controllers/Resources"
 	"config/internal/helpers"
 	"github.com/go-chi/chi/v5"
 )
@@ -37,26 +37,26 @@ func main() {
 
 	// Routes pour les ressources (resources)
 	r.Route("/resources", func(r chi.Router) {
-		r.Get("/", RessourcesControllers.GetAllResourcesHandler) // GET /config/resources
-		r.Post("/", RessourcesControllers.CreateResourceHandler)  // POST /config/resources
+		r.Get("/", Resources.GetAllResourcesHandler) // GET /config/resources
+		r.Post("/", Resources.CreateResourceHandler)  // POST /config/resources
 		// Route pour les opérations sur une ressource spécifique
 		r.Route("/{resourceId}", func(r chi.Router) { // Assurez-vous que le paramètre s'appelle "{id}"
 			r.Use(controllers.Ctx("resourceId")) // Utiliser controllers.Ctx ici
-			r.Get("/", RessourcesControllers.GetResourceByIDHandler)    // GET /config/resources/{id}
-			r.Put("/", RessourcesControllers.UpdateResourceHandler)     // PUT /config/resources/{id}
-			r.Delete("/", RessourcesControllers.DeleteResourceHandler)   // DELETE /config/resources/{id}
+			r.Get("/", Resources.GetResourceByIDHandler)    // GET /config/resources/{id}
+			r.Put("/", Resources.UpdateResourceHandler)     // PUT /config/resources/{id}
+			r.Delete("/", Resources.DeleteResourceHandler)   // DELETE /config/resources/{id}
 		})
 	})
 
 		// Routes pour les alertes (alerts)
 		r.Route("/alerts", func(r chi.Router) {
-			r.Get("/", AlertsControllers.GetAllAlertsHandler) // GET /config/alerts
-			r.Post("/", AlertsControllers.CreateAlertHandler)  // POST /config/alerts
+			r.Get("/", Alerts.GetAllAlertsHandler) // GET /config/alerts
+			r.Post("/", Alerts.CreateAlertHandler)  // POST /config/alerts
 			r.Route("/{alertId}", func(r chi.Router) {
 				r.Use(controllers.Ctx("alertId")) // Utiliser controllers.Ctx ici
-				r.Get("/", AlertsControllers.GetAlertByIDHandler)    // GET /config/alerts/{id}
-				r.Put("/", AlertsControllers.UpdateAlertHandler)     // PUT /config/alerts/{id}
-				r.Delete("/", AlertsControllers.DeleteAlertHandler)   // DELETE /config/alerts/{id}
+				r.Get("/", Alerts.GetAlertByIDHandler)    // GET /config/alerts/{id}
+				r.Put("/", Alerts.UpdateAlertHandler)     // PUT /config/alerts/{id}
+				r.Delete("/", Alerts.DeleteAlertHandler)   // DELETE /config/alerts/{id}
 			})
 		})
 

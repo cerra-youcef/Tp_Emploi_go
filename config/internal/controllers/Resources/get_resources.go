@@ -1,16 +1,16 @@
-package RessourcesControllers
+package Resources
 
 import (
 
 "encoding/json"
 "github.com/sirupsen/logrus"
-"config/internal/services/RessourcesSrv"
+"config/internal/services/Resources"
 "net/http"
 )
 
 // GetAllResourcesHandler récupère toutes les ressources.
 func GetAllResourcesHandler(w http.ResponseWriter, r *http.Request) {
-	resources, err := RessourcesSrv.GetAllResources()
+	resources, err := Resources.GetAllResources()
 	if err != nil {
 		logrus.Errorf("Error retrieving resources: %v", err)
 		http.Error(w, "Failed to retrieve resources", http.StatusInternalServerError)

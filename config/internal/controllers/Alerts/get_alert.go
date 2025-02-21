@@ -1,11 +1,11 @@
-package AlertsControllers
+package Alerts
 
 import (
 	"encoding/json"
 	"github.com/go-chi/chi/v5"
 	"github.com/sirupsen/logrus"
 
-	"config/internal/services/AlertsSrv"
+	"config/internal/services/Alerts"
 	"github.com/google/uuid"
 
 
@@ -21,7 +21,7 @@ http.Error(w, "Invalid UUID", http.StatusBadRequest)
 return
 }
 
-alert, err := AlertsSrv.GetAlertByID(id)
+alert, err := Alerts.GetAlertByID(id)
 if err != nil {
 logrus.Errorf("Error retrieving alert: %v", err)
 http.Error(w, "Internal server error", http.StatusInternalServerError)

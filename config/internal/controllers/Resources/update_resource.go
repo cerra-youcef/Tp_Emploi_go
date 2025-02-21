@@ -1,10 +1,10 @@
-package RessourcesControllers
+package Resources
 
 import (
 	"encoding/json"
 	"github.com/sirupsen/logrus"
 	"config/internal/models"
-	"config/internal/services/RessourcesSrv"
+	"config/internal/services/Resources"
 	"net/http"
 	"github.com/google/uuid"
 
@@ -14,7 +14,7 @@ import (
 func UpdateResourceHandler(w http.ResponseWriter, r *http.Request) {
 	resourceId := r.Context().Value("resourceId").(uuid.UUID)
 
-	var updatedResource models.Ressource
+	var updatedResource models.Resource
 	err := json.NewDecoder(r.Body).Decode(&updatedResource)
 	if err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
@@ -26,7 +26,7 @@ func UpdateResourceHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = RessourcesSrv.UpdateResource(resourceId, &updatedResource)
+	err = Resources.UpdateResource(resourceId, &updatedResource)
 	if err != nil {
 		if customErr, ok := err.(*models.CustomError); ok {
 			http.Error(w, customErr.Message, customErr.Code)

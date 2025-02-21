@@ -1,11 +1,11 @@
-package AlertsControllers
+package Alerts
 
 import (
 "encoding/json"
 "github.com/go-chi/chi/v5"
 "github.com/sirupsen/logrus"
 "config/internal/models"
-"config/internal/services/AlertsSrv"
+"config/internal/services/Alerts"
 "github.com/google/uuid"
 
 
@@ -28,7 +28,7 @@ func UpdateAlertHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = AlertsSrv.UpdateAlert(id, &updatedAlert)
+	err = Alerts.UpdateAlert(id, &updatedAlert)
 	if err != nil {
 		if customErr, ok := err.(*models.CustomError); ok {
 			http.Error(w, customErr.Message, customErr.Code)

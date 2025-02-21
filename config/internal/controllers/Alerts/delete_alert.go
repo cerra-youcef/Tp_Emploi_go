@@ -1,4 +1,4 @@
-package AlertsControllers
+package Alerts
 
 import (
 	"database/sql"
@@ -7,7 +7,7 @@ import (
 
 
 
-	"config/internal/services/AlertsSrv"
+	"config/internal/services/Alerts"
 
 
 	"net/http"
@@ -19,7 +19,7 @@ func DeleteAlertHandler(w http.ResponseWriter, r *http.Request) {
 	alertId := r.Context().Value("alertId").(uuid.UUID)
 
 	// Appeler le service pour supprimer l'alerte.
-	err := AlertsSrv.DeleteAlert(alertId)
+	err := Alerts.DeleteAlert(alertId)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			http.Error(w, "Alert not found", http.StatusNotFound)

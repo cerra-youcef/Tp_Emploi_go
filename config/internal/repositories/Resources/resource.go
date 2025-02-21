@@ -1,4 +1,4 @@
-package Ressourcesrep
+package Resources
 
 import (
 	"database/sql"
@@ -8,7 +8,7 @@ import (
 )
 
 // GetAllResources récupère toutes les ressources.
-func GetAllResources() ([]models.Ressource, error) {
+func GetAllResources() ([]models.Resource, error) {
 	db, err := helpers.OpenDB() // Déclaration initiale.
 	if err != nil {
 		return nil, err
@@ -17,7 +17,7 @@ func GetAllResources() ([]models.Ressource, error) {
 
 	query := `
         SELECT id, uca_id, name
-        FROM ressources
+        FROM resources
     `
 
 	rows, err := db.Query(query)
@@ -26,9 +26,9 @@ func GetAllResources() ([]models.Ressource, error) {
 	}
 	defer rows.Close()
 
-	var resources []models.Ressource
+	var resources []models.Resource
 	for rows.Next() {
-		var resource models.Ressource
+		var resource models.Resource
 		err = rows.Scan(&resource.ID, &resource.UcaId, &resource.Name)
 		if err != nil {
 			return nil, err
@@ -40,7 +40,7 @@ func GetAllResources() ([]models.Ressource, error) {
 }
 
 // GetResourceByID récupère une ressource par son ID.
-func GetResourceByID(id uuid.UUID) (*models.Ressource, error) {
+func GetResourceByID(id uuid.UUID) (*models.Resource, error) {
 	db, err := helpers.OpenDB() // Déclaration initiale.
 	if err != nil {
 		return nil, err
@@ -49,11 +49,11 @@ func GetResourceByID(id uuid.UUID) (*models.Ressource, error) {
 
 	query := `
         SELECT id, uca_id, name
-        FROM ressources
+        FROM resources
         WHERE id = ?
     `
 
-	var resource models.Ressource
+	var resource models.Resource
 	err = db.QueryRow(query, id).Scan(&resource.ID, &resource.UcaId, &resource.Name)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -66,7 +66,7 @@ func GetResourceByID(id uuid.UUID) (*models.Ressource, error) {
 }
 
 // CreateResource crée une nouvelle ressource.
-func CreateResource(resource *models.Ressource) error {
+func CreateResource(resource *models.Resource) error {
 	if resource.ID == uuid.Nil {
 		resource.ID = uuid.New()
 	}
@@ -78,7 +78,7 @@ func CreateResource(resource *models.Ressource) error {
 	defer helpers.CloseDB(db)
 
 	query := `
-        INSERT INTO ressources (id, uca_id, name)
+        INSERT INTO resources (id, uca_id, name)
         VALUES (?, ?, ?)
     `
 
@@ -96,7 +96,7 @@ func CreateResource(resource *models.Ressource) error {
 }
 
 // UpdateResource met à jour une ressource existante.
-func UpdateResource(id uuid.UUID, resource *models.Ressource) error {
+func UpdateResource(id uuid.UUID, resource *models.Resource) error {
 	db, err := helpers.OpenDB()
 	if err != nil {
 		return err
@@ -104,7 +104,7 @@ func UpdateResource(id uuid.UUID, resource *models.Ressource) error {
 	defer helpers.CloseDB(db)
 
 	query := `
-        UPDATE ressources
+        UPDATE resources
         SET uca_id = ?, name = ?
         WHERE id = ?
     `
@@ -131,7 +131,7 @@ func DeleteResource(id uuid.UUID) error {
 	defer helpers.CloseDB(db)
 
 	query := `
-        DELETE FROM ressources
+        DELETE FROM resources
         WHERE id = ?
     `
 

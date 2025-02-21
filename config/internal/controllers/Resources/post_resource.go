@@ -1,10 +1,10 @@
-package RessourcesControllers
+package Resources
 
 import (
 	"encoding/json"
 	"github.com/sirupsen/logrus"
 	"config/internal/models"
-	"config/internal/services/RessourcesSrv"
+	"config/internal/services/Resources"
 	"net/http"
 	"github.com/google/uuid"
 
@@ -12,7 +12,7 @@ import (
 
 // CreateResourceHandler crée une nouvelle ressource.
 func CreateResourceHandler(w http.ResponseWriter, r *http.Request) {
-	var newResource models.Ressource
+	var newResource models.Resource
 	err := json.NewDecoder(r.Body).Decode(&newResource)
 	if err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
@@ -23,7 +23,7 @@ func CreateResourceHandler(w http.ResponseWriter, r *http.Request) {
 		newResource.ID = uuid.New()
 	}
 
-	err = RessourcesSrv.CreateResource(&newResource)
+	err = Resources.CreateResource(&newResource)
 	if err != nil {
 		if customErr, ok := err.(*models.CustomError); ok {
 			http.Error(w, customErr.Message, customErr.Code)

@@ -1,4 +1,4 @@
-package RessourcesControllers
+package Resources
 
 import (
 
@@ -8,7 +8,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"config/internal/services/RessourcesSrv"
+	"config/internal/services/Resources"
 	"net/http"
 )
 
@@ -37,7 +37,7 @@ func DeleteResourceHandler(w http.ResponseWriter, r *http.Request) {
 	logrus.Infof("Deleting resource with ID: %s", resourceId)
 
 	// Appeler le service pour supprimer la ressource
-	err = RessourcesSrv.DeleteResource(resourceId)
+	err = Resources.DeleteResource(resourceId)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			http.Error(w, "Resource not found", http.StatusNotFound)

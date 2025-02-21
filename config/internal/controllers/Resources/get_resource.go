@@ -1,11 +1,11 @@
-package RessourcesControllers
+package Resources
 
 
 import (
 	"encoding/json"
 "github.com/sirupsen/logrus"
 "config/internal/models"
-"config/internal/services/RessourcesSrv"
+"config/internal/services/Resources"
 "github.com/google/uuid"
 
 "net/http"
@@ -18,7 +18,7 @@ func GetResourceByIDHandler(w http.ResponseWriter, r *http.Request) {
 	resourceId := r.Context().Value("resourceId").(uuid.UUID)
 
 	// Appeler le service pour obtenir la ressource.
-	resource, err := RessourcesSrv.GetResourceByID(resourceId)
+	resource, err := Resources.GetResourceByID(resourceId)
 	if err != nil {
 		if customErr, ok := err.(*models.CustomError); ok {
 			http.Error(w, customErr.Message, customErr.Code)

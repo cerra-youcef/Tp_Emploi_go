@@ -1,10 +1,10 @@
-package AlertsControllers
+package Alerts
 
 import (
 "encoding/json"
 "github.com/sirupsen/logrus"
 "config/internal/models"
-"config/internal/services/AlertsSrv"
+"config/internal/services/Alerts"
 
 "net/http"
 )
@@ -18,7 +18,7 @@ func CreateAlertHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = AlertsSrv.CreateAlert(&newAlert)
+	err = Alerts.CreateAlert(&newAlert)
 	if err != nil {
 		logrus.Errorf("Error creating alert: %v", err)
 		http.Error(w, "Failed to create alert", http.StatusInternalServerError)
