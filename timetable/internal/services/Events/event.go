@@ -4,7 +4,6 @@ import (
 "github.com/google/uuid"
 "timetable/internal/models"
 "timetable/internal/repositories/Events"
-"net/http" // Ajoutez cet import si nécessaire
 "database/sql"
 
 

@@ -8,7 +8,6 @@ import (
 	"timetable/internal/models"
 	"timetable/internal/services/Events"
 	"net/http"
-
 )
 
 // GetEventByIDHandler récupère un événement par son ID.

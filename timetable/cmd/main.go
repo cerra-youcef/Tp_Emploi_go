@@ -8,20 +8,14 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-
-	
-	
 	"timetable/internal/helpers"
 	"timetable/internal/controllers/Events"
 	"timetable/internal/controllers"
-
 	"github.com/go-chi/chi/v5"
 )
 
 func main() {
 	//Initialisation de la base de données
-
-
 	db, err := helpers.OpenDB()
 	if err != nil {
 		log.Fatalf("Error while opening database: %s", err.Error())
@@ -46,8 +40,6 @@ func main() {
 		r.Route("/{eventId}", func(r chi.Router) {
 			r.Use(controllers.Ctx("eventId")) // Utiliser controllers.Ctx ici
 			r.Get("/", Events.GetEventByIDHandler)    // GET /timetable/events/{id}
-			r.Put("/", Events.UpdateEventHandler)     // PUT /timetable/events/{id}
-			r.Delete("/", Events.DeleteEventHandler)   // DELETE /timetable/events/{id}
 		})
 	})
 

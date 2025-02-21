@@ -17,17 +17,21 @@ func InitializeDB(db *sql.DB) error {
             resource_ids TEXT NOT NULL,
             uid TEXT NOT NULL,
             name TEXT NOT NULL,
-            start TEXT NOT NULL
+			description TEXT,
+            start TEXT NOT NULL,
+			end TEXT,
+			location TEXT,
+			CreatedAt TEXT,
+			UpdatedAt TEXT,
+			DTStamp TEXT
         );
     `
-	// Exécuter les requêtes SQL pour créer les tables.
-	queries := []string{resourcesTableQuery, alertsTableQuery, eventsTableQuery}
-	for _, query := range queries {
-		_, err := db.Exec(query)
-		if err != nil {
-			return err
-		}
+
+	_, err := db.Exec(eventsTableQuery)
+	if err != nil {
+		return err
 	}
+	
 	return nil
 }
 

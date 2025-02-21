@@ -17,7 +17,7 @@ func GetAllEvents() ([]models.Event, error) {
 	defer helpers.CloseDB(db)
 
 	query := `
-        SELECT id, resource_ids, uid, name, start
+        SELECT id, resource_ids, uid, name,description, start, end, location, CreatedAt, UpdatedAt, DTStamp 
         FROM events
     `
 
@@ -31,7 +31,7 @@ func GetAllEvents() ([]models.Event, error) {
 	for rows.Next() {
 		var event models.Event
 		var resourceIdsJSON string
-		err = rows.Scan(&event.ID, &resourceIdsJSON, &event.UID, &event.Name, &event.Start)
+		err = rows.Scan(&event.ID, &resourceIdsJSON, &event.UID, &event.Name,&event.Description, &event.Start, &event.End, &event.Location , &event.CreatedAt, &event.UpdatedAt, &event.DTStamp)
 		if err != nil {
 			return nil, err
 		}
@@ -56,14 +56,14 @@ func GetEventByID(id uuid.UUID) (*models.Event, error) {
 	defer helpers.CloseDB(db)
 
 	query := `
-        SELECT id, resource_ids, uid, name, start
+        SELECT id, resource_ids, uid, name,description, start, end, location, CreatedAt, UpdatedAt, DTStamp 
         FROM events
         WHERE id = ?
     `
 
 	var event models.Event
 	var resourceIdsJSON string
-	err = db.QueryRow(query, id).Scan(&event.ID, &resourceIdsJSON, &event.UID, &event.Name, &event.Start)
+	err = db.QueryRow(query, id).Scan(&event.ID, &resourceIdsJSON, &event.UID, &event.Name,&event.Description, &event.Start, &event.End, &event.Location , &event.CreatedAt, &event.UpdatedAt, &event.DTStamp)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil // Retourne nil si l'événement n'existe pas.
@@ -97,11 +97,11 @@ func CreateEvent(event *models.Event) error {
 	}
 
 	query := `
-        INSERT INTO events (id, resource_ids, uid, name, start)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO events (id, resource_ids, uid, name,description, start, end, location, CreatedAt, UpdatedAt, DTStamp)
+        VALUES (?, ?, ?, ?, ?,?, ?, ?, ?, ?,?)
     `
 
-	result, err := db.Exec(query, event.ID, string(resourceIdsJSON), event.UID, event.Name, event.Start)
+	result, err := db.Exec(query, event.ID, string(resourceIdsJSON), event.UID, event.Name,&event.Description, event.Start, event.End, event.Location , event.CreatedAt, event.UpdatedAt, event.DTStamp)
 	if err != nil {
 		return err
 	}
@@ -115,7 +115,7 @@ func CreateEvent(event *models.Event) error {
 }
 
 func GetEventsByResourceID(db *sql.DB, resourceID string) ([]*models.Event, error) {
-	rows, err := db.Query("SELECT id, resource_ids, uid, name, start, created_at, updated_at FROM events WHERE resource_ids LIKE ?", "%"+resourceID+"%")
+	rows, err := db.Query("SELECT id, resource_ids, uid, name,description, start, end, location, CreatedAt, UpdatedAt, DTStamp FROM events WHERE resource_ids LIKE ?", "%"+resourceID+"%")
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +124,7 @@ func GetEventsByResourceID(db *sql.DB, resourceID string) ([]*models.Event, erro
 	var events []*models.Event
 	for rows.Next() {
 		var event models.Event
-		if err := rows.Scan(&event.ID, &event.ResourceIDs, &event.UID, &event.Name, &event.Start, &event.CreatedAt, &event.UpdatedAt); err != nil {
+		if err := rows.Scan(&event.ID, &event.ResourceIDs, &event.UID, &event.Name,&event.Description, &event.Start,  &event.End, &event.Location , &event.CreatedAt, &event.UpdatedAt, &event.DTStamp); err != nil {
 			return nil, err
 		}
 		events = append(events, &event)
