@@ -114,20 +114,32 @@ func CreateEvent(event *models.Event) error {
 	return nil
 }
 
-func GetEventsByResourceID(db *sql.DB, resourceID string) ([]*models.Event, error) {
+func GetEventsByResourceID(resourceID string) ([]models.Event, error) {
+	
+	db, err := helpers.OpenDB()
+	if err != nil {
+		return nil,err
+	}
+	defer helpers.CloseDB(db)
+	
 	rows, err := db.Query("SELECT id, resource_ids, uid, name,description, start, end, location, CreatedAt, UpdatedAt, DTStamp FROM events WHERE resource_ids LIKE ?", "%"+resourceID+"%")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var events []*models.Event
+	var events []models.Event
+	var resourceIdsJSON string
 	for rows.Next() {
 		var event models.Event
-		if err := rows.Scan(&event.ID, &event.ResourceIDs, &event.UID, &event.Name,&event.Description, &event.Start,  &event.End, &event.Location , &event.CreatedAt, &event.UpdatedAt, &event.DTStamp); err != nil {
+		if err := rows.Scan(&event.ID, &resourceIdsJSON, &event.UID, &event.Name,&event.Description, &event.Start,  &event.End, &event.Location , &event.CreatedAt, &event.UpdatedAt, &event.DTStamp); err != nil {
 			return nil, err
 		}
-		events = append(events, &event)
+		err = json.Unmarshal([]byte(resourceIdsJSON), &event.ResourceIDs)
+		if err != nil {
+			return nil, err
+		}
+		events = append(events, event)
 	}
 	return events, nil
 }

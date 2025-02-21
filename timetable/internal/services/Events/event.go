@@ -1,17 +1,14 @@
 package Events
 
 import (
-"github.com/google/uuid"
-"timetable/internal/models"
-"timetable/internal/repositories/Events"
-"database/sql"
-
-
+	"github.com/google/uuid"
+	"timetable/internal/models"
+	"timetable/internal/repositories/Events"
 )
 
 // GetEventsByResourceID récupère les événements associés à une ressource spécifique.
-func GetEventsByResourceID(db *sql.DB, resourceID string) ([]*models.Event, error) {
-	return Events.GetEventsByResourceID(db, resourceID)
+func GetEventsByResourceID(resourceID string) ([]models.Event, error) {
+	return Events.GetEventsByResourceID(resourceID)
 }
 
 // GetAllEvents récupère tous les événements.
