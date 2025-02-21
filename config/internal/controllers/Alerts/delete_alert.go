@@ -2,14 +2,8 @@ package Alerts
 
 import (
 	"database/sql"
-
 	"github.com/google/uuid"
-
-
-
 	"config/internal/services/Alerts"
-
-
 	"net/http"
 )
 
