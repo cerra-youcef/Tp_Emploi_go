@@ -1,149 +1,131 @@
 package main
 
 import (
+	"bufio"
+	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
+	"io"
 	"net/http"
 	"strings"
-	"github.com/google/uuid"
 	"scheduler/internal/models"
-	"scheduler/internal/edt"
-	"strconv"
 )
 
-// Structure temporaire pour déserialiser la réponse JSON de l'API Config
-type ResourceResponse struct {
-	ID    string `json:"id"`    // ID en format chaîne (converti en UUID plus tard)
-	UcaId int    `json:"uca_id"`
-	Name  string `json:"name"`
-}
+// FetchEventsFromUCA fetches events based on provided resource IDs.
+func FetchEventsFromUCA(resourceIDs []int) ([]models.Event, error) {
+	if len(resourceIDs) == 0 {
+		return nil, fmt.Errorf("no resource IDs provided")
+	}
 
-// Fonction pour récupérer les emplois du temps depuis l'API "Config"
-func fetchTimetablesFromConfig(configURL string) ([]Resource, error) {
-	resp, err := http.Get(fmt.Sprintf("%s/resources", configURL))
+	// Convert resourceIDs to a comma-separated string
+	resourceStr := strings.Trim(strings.Replace(fmt.Sprint(resourceIDs), " ", ",", -1), "[]")
+
+	// Construct the URL dynamically
+	url := fmt.Sprintf("https://edt.uca.fr/jsp/custom/modules/plannings/anonymous_cal.jsp?resources=%s&projectId=2&calType=ical&nbWeeks=8&displayConfigId=128", resourceStr)
+
+	// Retrieve data from EDT
+	resp, err := http.Get(url)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch resources: %w", err)
+		return nil, fmt.Errorf("error fetching data: %v", err)
 	}
 	defer resp.Body.Close()
 
-	var resources []ResourceResponse
-	if err := json.NewDecoder(resp.Body).Decode(&resources); err != nil {
-		return nil, fmt.Errorf("failed to decode resources response: %w", err)
+	// Read all data from response
+	rawData, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error reading response body: %v", err)
 	}
 
-	// Convertir les données en modèle interne
-	var timetables []Resource
-	for _, r := range resources {
-		id, err := uuid.Parse(r.ID)
-		if err != nil {
-			log.Printf("Failed to parse UUID for resource ID %s: %v", r.ID, err)
+	// Create a line-reader from data
+	scanner := bufio.NewScanner(bytes.NewReader(rawData))
+
+	// Store parsed events
+	var events []models.Event
+	currentEvent := models.Event{}
+
+	currentKey := ""
+	currentValue := ""
+	inEvent := false
+
+	// Parse each line
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		// Ignore non-event lines
+		if !inEvent && line != "BEGIN:VEVENT" {
 			continue
 		}
-		timetables = append(timetables, Resource{
-			ID:    id,
-			UcaId: r.UcaId,
-			Name:  r.Name,
-		})
-	}
 
-	return timetables, nil
-}
-
-// Génère une représentation iCalendar d'un événement
-func generateICalEvent(event models.Event) string {
-	return fmt.Sprintf(
-		"BEGIN:VEVENT\n"+
-			"DTSTAMP:%s\n"+
-			"DTSTART:%s\n"+
-			"DTEND:%s\n"+
-			"SUMMARY:%s\n"+
-			"LOCATION:%s\n"+
-			"DESCRIPTION:%s\n"+
-			"UID:%s\n"+
-			"LAST-MODIFIED:%s\n"+
-			"END:VEVENT\n",
-		event.Start.Format("20060102T150405Z"),
-		event.Start.Format("20060102T150405Z"),
-		event.End,
-		event.Name,
-		event.Location,
-		strings.ReplaceAll(event.Description, "\n", "\\n"),
-		event.UID,
-		event.UpdatedAt.Format("20060102T150405Z"),
-	)
-}
-
-// Génère une représentation complète iCalendar pour une liste d'événements
-func generateICal(events []models.Event) string {
-	var ical strings.Builder
-	ical.WriteString("BEGIN:VCALENDAR\n")
-	ical.WriteString("METHOD:PUBLISH\n")
-	ical.WriteString("PRODID:-//ADE/version 6.0\n")
-	ical.WriteString("VERSION:2.0\n")
-	ical.WriteString("CALSCALE:GREGORIAN\n")
-
-	// Ajouter chaque événement avec un espace supplémentaire entre eux
-	for i, event := range events {
-		ical.WriteString(generateICalEvent(event))
-		// Ajouter un espace vide entre les événements, sauf après le dernier
-		if i < len(events)-1 {
-			ical.WriteString("\n") // Ligne vide pour séparer les événements
+		// Start a new event
+		if line == "BEGIN:VEVENT" {
+			inEvent = true
+			currentEvent = models.Event{}
+			continue
 		}
+
+		// End event and store
+		if line == "END:VEVENT" {
+			inEvent = false
+			events = append(events, currentEvent)
+			continue
+		}
+
+		// Handle multi-line values (continuation lines start with a space)
+		if strings.HasPrefix(line, " ") {
+			currentValue += strings.TrimSpace(line)
+			currentEvent = updateEventField(currentEvent, currentKey, currentValue)
+			continue
+		}
+
+		// Split key-value pair
+		splitted := strings.SplitN(line, ":", 2)
+		if len(splitted) < 2 {
+			continue
+		}
+		currentKey = splitted[0]
+		currentValue = splitted[1]
+
+		// Store field
+		currentEvent = updateEventField(currentEvent, currentKey, currentValue)
 	}
 
-	ical.WriteString("END:VCALENDAR\n")
-	return ical.String()
+	return events, nil
 }
+
+func updateEventField(event models.Event, key, value string) models.Event {
+	switch key {
+	case "UID":
+		event.UID = value
+	case "SUMMARY":
+		event.Name = value
+	case "DESCRIPTION":
+		event.Description = value
+	case "LOCATION":
+		event.Location = value
+	case "DTSTART":
+		event.Start = value
+	case "DTEND":
+		event.End = value
+	case "CREATED":
+		event.CreatedAt = value
+	case "LAST-MODIFIED":
+		event.UpdatedAt = value
+	case "DTSTAMP":
+		event.DTStamp = value
+	}
+	return event
+}
+
 
 func main() {
-	configURL := "http://localhost:8080" // URL de l'API Config
-
-	// Étape 1 : Récupérer les emplois du temps configurés depuis l'API "Config"
-	timetables, err := fetchTimetablesFromConfig(configURL)
+	resourceIDs := []int{13295, 13345} // Example resource IDs
+	events, err := FetchEventsFromUCA(resourceIDs)
 	if err != nil {
-		log.Fatalf("Error fetching timetables: %v", err)
+		fmt.Println("Error fetching events:", err)
+		return
 	}
 
-
-	// Traiter chaque emploi du temps
-	for _, timetable := range timetables {
-		fmt.Printf("\nFetching events for timetable: %s (UCA ID: %d)\n", timetable.Name, timetable.UcaId)
-
-		// Récupérer les événements depuis l'API UCA
-		events, err := edt.FetchEventsFromUCA(timetable.UcaId)
-		if err != nil {
-			log.Printf("Error fetching events for timetable %s: %v", timetable.Name, err)
-			continue
-		}
-
-		// Générer et afficher la représentation iCalendar
-		if len(events) > 0 {
-			fmt.Printf("\nGenerated iCalendar for timetable %s:\n", timetable.Name)
-			fmt.Println(generateICal(events))
-		} else {
-			fmt.Printf("No events found for timetable %s.\n", timetable.Name)
-		}
-	}
-
-
-
-
-
-	fmt.Printf(ichouAFFICHAGE(timetables))
-
-
-	fmt.Println("\nScheduler execution completed.")
-}
-
-func ichouAFFICHAGE(timetables []Resource) string {
-	result := ""
-	for _, table := range timetables {
-		if result != "" {
-			result += ","
-		}
-		result += strconv.Itoa(table.UcaId)
-	}
-
-    return "https://edt.uca.fr/jsp/custom/modules/plannings/anonymous_cal.jsp?resources="+result+"&projectId=2&calType=ical&nbWeeks=8&displayConfigId=128"
+	// Convert to JSON and print
+	jsonData, _ := json.MarshalIndent(events, "", "  ")
+	fmt.Println(string(jsonData))
 }
