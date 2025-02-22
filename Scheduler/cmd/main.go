@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"log"
+	"github.com/google/uuid"
 	"fmt"
 	"io"
 	"net/http"
@@ -116,16 +118,73 @@ func updateEventField(event models.Event, key, value string) models.Event {
 	return event
 }
 
+func fetchResourcesFromConfig(configURL string) ([]models.Resource, error) {
+	resp, err := http.Get(fmt.Sprintf("%s/resources", configURL))
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch resources: %w", err)
+	}
+	defer resp.Body.Close()
+
+	// Decode JSON response into a generic slice of maps
+	var rawResources []map[string]interface{}
+	if err := json.NewDecoder(resp.Body).Decode(&rawResources); err != nil {
+		return nil, fmt.Errorf("failed to decode resources response: %w", err)
+	}
+
+	// Convert the raw data into models.Resource
+	var timetables []models.Resource
+	for _, raw := range rawResources {
+		idStr, ok := raw["id"].(string)
+		if !ok {
+			log.Println("Invalid or missing 'id' field")
+			continue
+		}
+		id, err := uuid.Parse(idStr)
+		if err != nil {
+			log.Printf("Failed to parse UUID for resource ID %s: %v", idStr, err)
+			continue
+		}
+
+		ucaId, ok := raw["uca_id"].(float64) // JSON numbers are float64 by default
+		if !ok {
+			log.Println("Invalid or missing 'uca_id' field")
+			continue
+		}
+
+		name, ok := raw["name"].(string)
+		if !ok {
+			log.Println("Invalid or missing 'name' field")
+			continue
+		}
+
+		timetables = append(timetables, models.Resource{
+			ID:    id,
+			UcaId: int(ucaId), // Convert float64 to int
+			Name:  name,
+		})
+	}
+
+	return timetables, nil
+}
+
 
 func main() {
+	/*
 	resourceIDs := []int{13295, 13345} // Example resource IDs
 	events, err := FetchEventsFromUCA(resourceIDs)
 	if err != nil {
 		fmt.Println("Error fetching events:", err)
 		return
+	}*/
+
+	configURL := "http://localhost:8080" 
+
+	timetables, err := fetchResourcesFromConfig(configURL)
+	if err != nil {
+		log.Fatalf("Error fetching timetables: %v", err)
 	}
 
 	// Convert to JSON and print
-	jsonData, _ := json.MarshalIndent(events, "", "  ")
+	jsonData, _ := json.MarshalIndent(timetables, "", "  ")
 	fmt.Println(string(jsonData))
 }
