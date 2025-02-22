@@ -15,6 +15,7 @@ import (
 	"github.com/swaggo/http-swagger"
 	"github.com/go-chi/cors"
 	_ "timetable/api"
+	"timetable/internal/nats"
 )
 
 func main() {
@@ -29,6 +30,30 @@ func main() {
 	if err := helpers.InitializeDB(db); err != nil {
 		log.Fatalf("Error initializing database: %s", err.Error())
 	}
+
+	//Store DB in context
+	ctx := context.WithValue(context.Background(), "db", db)
+
+	//Start NATS Consumer in a Goroutine with context
+	go func() {
+		log.Println("Starting NATS Consumer...")
+		js, nc, err := natsConsumer.ConnectToNATS()
+		if err != nil {
+			log.Fatalf("Error connecting to NATS: %v", err)
+		}
+		defer nc.Close()
+
+		consumer, err := natsConsumer.EventConsumer(js)
+		if err != nil {
+			log.Fatalf("Error creating NATS Consumer: %v", err)
+		}
+
+		err = natsConsumer.Consume(ctx, *consumer) // ✅ Pass the context with DB
+		if err != nil {
+			log.Fatalf("Error consuming messages: %v", err)
+		}
+	}()
+
 
 	// Création du routeur Chi
 	r := chi.NewRouter()
@@ -54,9 +79,6 @@ func main() {
 	r.Get("/swagger/*", httpSwagger.Handler(
 		httpSwagger.URL("http://localhost:8080/swagger/doc.json"), // Point to your swagger.json
 	))
-
-	// Passage de la connexion DB au contexte pour une utilisation globale
-	ctx := context.WithValue(context.Background(), "db", db)
 
 	// Démarrage du serveur HTTP avec un gestionnaire de contexte
 	server := &http.Server{
