@@ -28,3 +28,7 @@ func CreateEvent(event *models.Event) error {
 	}
 	return Events.CreateEvent(event)
 }
+
+func GetEventByUID(id string) (*models.Event, error) {
+	return Events.GetEventByUID(id)
+}

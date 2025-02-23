@@ -68,10 +68,10 @@ func Consume(ctx context.Context, consumer jetstream.Consumer) error {
 			_ = msg.Nak()
 			return
 		}
-		log.Printf("Received event: ID: %s,uid : %s Name: %s\n", event.ID,event.UID,event.Name )
+		log.Printf("Received event: uid : %s Name: %s\n",event.UID,event.Name )
 
 		// Store in database if it doesn't exist
-		existingEvent, err := Events.GetEventByID(event.ID)
+		existingEvent, err := Events.GetEventByUID(event.UID)
 		if err != nil {
 			log.Println("Error checking event existence:", err)
 			_ = msg.Nak()

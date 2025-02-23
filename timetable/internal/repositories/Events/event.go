@@ -142,3 +142,33 @@ func GetEventsByResourceID(resourceID string) ([]models.Event, error) {
 	}
 	return events, nil
 }
+
+func GetEventByUID(id string) (*models.Event, error) {
+	db, err := helpers.OpenDB() // Déclaration initiale.
+	if err != nil {
+		return nil, err
+	}
+	defer helpers.CloseDB(db)
+
+	query := `
+        SELECT id, resources, uid, name, description, start, end, location, CreatedAt, UpdatedAt, DTStamp 
+        FROM events
+        WHERE uid = ?
+    `
+
+	var event models.Event
+	var resourcesJSON string
+	err = db.QueryRow(query, id).Scan(&event.ID, &resourcesJSON, &event.UID, &event.Name,&event.Description, &event.Start, &event.End, &event.Location , &event.CreatedAt, &event.UpdatedAt, &event.DTStamp)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil // Retourne nil si l'événement n'existe pas.
+		}
+		return nil, err
+	}
+
+	err = json.Unmarshal([]byte(resourcesJSON), &event.Resources)
+	if err != nil {
+		return nil, err
+	}
+	return &event, nil
+}
