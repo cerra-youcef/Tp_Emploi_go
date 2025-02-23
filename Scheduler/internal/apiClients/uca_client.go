@@ -16,7 +16,7 @@ func FetchEventsFromUCA(resourceIDs []int) ([]models.Event, error) {
 		return nil, fmt.Errorf("no resource IDs provided")
 	}
 
-	var allEvents []models.Event
+	eventMap := make(map[string]*models.Event) // Map UID -> Event
 
 	for _, resourceID := range resourceIDs {
 		events, err := fetchEventsForSingleResource(resourceID)
@@ -24,10 +24,26 @@ func FetchEventsFromUCA(resourceIDs []int) ([]models.Event, error) {
 			return nil, fmt.Errorf("error fetching events for resource %d: %v", resourceID, err)
 		}
 
-		allEvents = append(allEvents, events...)
+		// Merge events by UID
+		for _, event := range events {
+			if existingEvent, found := eventMap[event.UID]; found {
+				// If event with same UID exists, add resourceID
+				existingEvent.Resources = append(existingEvent.Resources, resourceID)
+			} else {
+				// Otherwise, create new event with resource as array
+				event.Resources = []int{resourceID}
+				eventMap[event.UID] = &event
+			}
+		}
 	}
 
-	return allEvents, nil
+	// Convert map to slice
+	var mergedEvents []models.Event
+	for _, event := range eventMap {
+		mergedEvents = append(mergedEvents, *event)
+	}
+
+	return mergedEvents, nil
 }
 
 // fetchEventsForSingleResource fetches events for a single resource ID
@@ -75,14 +91,13 @@ func parseEvents(rawData []byte, resourceID int) []models.Event {
 
 		if line == "BEGIN:VEVENT" {
 			inEvent = true
-			currentEvent = models.Event{
-				Resource: resourceID,
-			}
+			currentEvent = models.Event{}
 			continue
 		}
 
 		if line == "END:VEVENT" {
 			inEvent = false
+			currentEvent.Resources = []int{resourceID} // Initialize resources array
 			events = append(events, currentEvent)
 			continue
 		}
