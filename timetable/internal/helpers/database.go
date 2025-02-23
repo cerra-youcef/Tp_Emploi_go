@@ -14,7 +14,7 @@ func InitializeDB(db *sql.DB) error {
 	eventsTableQuery := `
         CREATE TABLE IF NOT EXISTS events (
             id TEXT PRIMARY KEY,
-            resource_ids TEXT NOT NULL,
+            resource INT NOT NULL,
             uid TEXT NOT NULL,
             name TEXT NOT NULL,
 			description TEXT,

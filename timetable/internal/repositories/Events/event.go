@@ -2,7 +2,6 @@ package Events
 
 import (
 	"database/sql"
-	"encoding/json"
 	"github.com/google/uuid"
 	"timetable/internal/helpers"
 	"timetable/internal/models"
@@ -17,7 +16,7 @@ func GetAllEvents() ([]models.Event, error) {
 	defer helpers.CloseDB(db)
 
 	query := `
-        SELECT id, resource_ids, uid, name,description, start, end, location, CreatedAt, UpdatedAt, DTStamp 
+        SELECT id, resource, uid, name,description, start, end, location, CreatedAt, UpdatedAt, DTStamp 
         FROM events
     `
 
@@ -30,13 +29,7 @@ func GetAllEvents() ([]models.Event, error) {
 	var events []models.Event
 	for rows.Next() {
 		var event models.Event
-		var resourceIdsJSON string
-		err = rows.Scan(&event.ID, &resourceIdsJSON, &event.UID, &event.Name,&event.Description, &event.Start, &event.End, &event.Location , &event.CreatedAt, &event.UpdatedAt, &event.DTStamp)
-		if err != nil {
-			return nil, err
-		}
-
-		err = json.Unmarshal([]byte(resourceIdsJSON), &event.ResourceIDs)
+		err = rows.Scan(&event.ID, &event.Resource, &event.UID, &event.Name,&event.Description, &event.Start, &event.End, &event.Location , &event.CreatedAt, &event.UpdatedAt, &event.DTStamp)
 		if err != nil {
 			return nil, err
 		}
@@ -56,26 +49,19 @@ func GetEventByID(id uuid.UUID) (*models.Event, error) {
 	defer helpers.CloseDB(db)
 
 	query := `
-        SELECT id, resource_ids, uid, name,description, start, end, location, CreatedAt, UpdatedAt, DTStamp 
+        SELECT id, resource, uid, name, description, start, end, location, CreatedAt, UpdatedAt, DTStamp 
         FROM events
         WHERE id = ?
     `
 
 	var event models.Event
-	var resourceIdsJSON string
-	err = db.QueryRow(query, id).Scan(&event.ID, &resourceIdsJSON, &event.UID, &event.Name,&event.Description, &event.Start, &event.End, &event.Location , &event.CreatedAt, &event.UpdatedAt, &event.DTStamp)
+	err = db.QueryRow(query, id).Scan(&event.ID, &event.Resource, &event.UID, &event.Name,&event.Description, &event.Start, &event.End, &event.Location , &event.CreatedAt, &event.UpdatedAt, &event.DTStamp)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil // Retourne nil si l'événement n'existe pas.
 		}
 		return nil, err
 	}
-
-	err = json.Unmarshal([]byte(resourceIdsJSON), &event.ResourceIDs)
-	if err != nil {
-		return nil, err
-	}
-
 	return &event, nil
 }
 
@@ -91,17 +77,12 @@ func CreateEvent(event *models.Event) error {
 	}
 	defer helpers.CloseDB(db)
 
-	resourceIdsJSON, err := json.Marshal(event.ResourceIDs)
-	if err != nil {
-		return err
-	}
-
 	query := `
-        INSERT INTO events (id, resource_ids, uid, name,description, start, end, location, CreatedAt, UpdatedAt, DTStamp)
+        INSERT INTO events (id, resource, uid, name,description, start, end, location, CreatedAt, UpdatedAt, DTStamp)
         VALUES (?, ?, ?, ?, ?,?, ?, ?, ?, ?,?)
     `
 
-	result, err := db.Exec(query, event.ID, string(resourceIdsJSON), event.UID, event.Name,&event.Description, event.Start, event.End, event.Location , event.CreatedAt, event.UpdatedAt, event.DTStamp)
+	result, err := db.Exec(query, event.ID, event.Resource, event.UID, event.Name,&event.Description, event.Start, event.End, event.Location , event.CreatedAt, event.UpdatedAt, event.DTStamp)
 	if err != nil {
 		return err
 	}
@@ -122,21 +103,16 @@ func GetEventsByResourceID(resourceID string) ([]models.Event, error) {
 	}
 	defer helpers.CloseDB(db)
 	
-	rows, err := db.Query("SELECT id, resource_ids, uid, name,description, start, end, location, CreatedAt, UpdatedAt, DTStamp FROM events WHERE resource_ids LIKE ?", "%"+resourceID+"%")
+	rows, err := db.Query("SELECT id, resource, uid, name,description, start, end, location, CreatedAt, UpdatedAt, DTStamp FROM events WHERE resource LIKE ?", "%"+resourceID+"%")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
 	var events []models.Event
-	var resourceIdsJSON string
 	for rows.Next() {
 		var event models.Event
-		if err := rows.Scan(&event.ID, &resourceIdsJSON, &event.UID, &event.Name,&event.Description, &event.Start,  &event.End, &event.Location , &event.CreatedAt, &event.UpdatedAt, &event.DTStamp); err != nil {
-			return nil, err
-		}
-		err = json.Unmarshal([]byte(resourceIdsJSON), &event.ResourceIDs)
-		if err != nil {
+		if err := rows.Scan(&event.ID, &event.Resource, &event.UID, &event.Name,&event.Description, &event.Start,  &event.End, &event.Location , &event.CreatedAt, &event.UpdatedAt, &event.DTStamp); err != nil {
 			return nil, err
 		}
 		events = append(events, event)
