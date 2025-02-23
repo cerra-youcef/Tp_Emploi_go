@@ -23,6 +23,13 @@ func InitializeDB(db *sql.DB) error {
 			location TEXT,
 			updated_at TEXT
         );
+		
+		CREATE TABLE IF NOT EXISTS alerts (
+            id TEXT PRIMARY KEY,
+            type TEXT NOT NULL,
+            changes TEXT NOT NULL,
+            event TEXT NOT NULL
+        );
     `
 
 	_, err := db.Exec(eventsTableQuery)

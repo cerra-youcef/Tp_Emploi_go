@@ -3,21 +3,26 @@ package helpers
 import (
 	"log"
 	"timetable/internal/models"
+	"github.com/google/uuid"
+
 )
 
 func PrintAlert(alertType string, event models.Event, changes ...map[string]string){
-	natsMessage := map[string]interface{}{
-		"type":  alertType,
-		"event": event,
+
+	alert := models.Alert{
+		ID:    uuid.New(),  // Generate a new UUID for the alert
+		Type:  alertType,
+		Event: event.ID,    // Assuming your Event model has an ID field, otherwise update this
 	}
 
 	if len(changes) > 0 {
-		natsMessage["changes"] = changes[0]
+		alert.Changes = changes[0]
 	}
 
 	//message, _ := json.Marshal(natsMessage)
-	log.Println(natsMessage["type"])
-	log.Println(natsMessage["changes"])
+	log.Printf("Alert Type: %s\n", alert.Type)
+	log.Printf("Event ID: %s\n", alert.Event)
+	log.Printf("Changes: %v\n", alert.Changes)
 }
 
 
