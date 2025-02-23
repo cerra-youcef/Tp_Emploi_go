@@ -80,12 +80,12 @@ func main() {
 
 	// Swagger UI Route
 	r.Get("/swagger/*", httpSwagger.Handler(
-		httpSwagger.URL("http://localhost:8080/swagger/doc.json"), // Point to your swagger.json
+		httpSwagger.URL("http://localhost:8081/swagger/doc.json"), // Point to your swagger.json
 	))
 
 	// Démarrage du serveur HTTP avec un gestionnaire de contexte
 	server := &http.Server{
-		Addr:         ":8080",
+		Addr:         ":8081",
 		Handler:      r,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
@@ -98,7 +98,7 @@ func main() {
 
 	// Démarrer le serveur dans un goroutine
 	go func() {
-		log.Println("Web server started. Listening on :8080")
+		log.Println("Web server started. Listening on :8081")
 		if err := server.ListenAndServe(); err != http.ErrServerClosed {
 			log.Fatalf("Error starting server: %v", err)
 		}
