@@ -17,7 +17,7 @@ func GetAllEvents() ([]models.Event, error) {
 	defer helpers.CloseDB(db)
 
 	query := `
-        SELECT id, resources, uid, name,description, start, end, location, CreatedAt, UpdatedAt, DTStamp 
+        SELECT id, resources, uid, name,description, start, end, location, UpdatedAt 
         FROM events
     `
 
@@ -31,7 +31,7 @@ func GetAllEvents() ([]models.Event, error) {
 	for rows.Next() {
 		var event models.Event
 		var resourcesJSON string
-		err = rows.Scan(&event.ID, &resourcesJSON, &event.UID, &event.Name,&event.Description, &event.Start, &event.End, &event.Location , &event.CreatedAt, &event.UpdatedAt, &event.DTStamp)
+		err = rows.Scan(&event.ID, &resourcesJSON, &event.UID, &event.Name,&event.Description, &event.Start, &event.End, &event.Location , &event.UpdatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -56,14 +56,14 @@ func GetEventByID(id uuid.UUID) (*models.Event, error) {
 	defer helpers.CloseDB(db)
 
 	query := `
-        SELECT id, resources, uid, name, description, start, end, location, CreatedAt, UpdatedAt, DTStamp 
+        SELECT id, resources, uid, name, description, start, end, location, UpdatedAt 
         FROM events
         WHERE id = ?
     `
 
 	var event models.Event
 	var resourcesJSON string
-	err = db.QueryRow(query, id).Scan(&event.ID, &resourcesJSON, &event.UID, &event.Name,&event.Description, &event.Start, &event.End, &event.Location , &event.CreatedAt, &event.UpdatedAt, &event.DTStamp)
+	err = db.QueryRow(query, id).Scan(&event.ID, &resourcesJSON, &event.UID, &event.Name,&event.Description, &event.Start, &event.End, &event.Location , &event.UpdatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil // Retourne nil si l'événement n'existe pas.
@@ -96,11 +96,11 @@ func CreateEvent(event *models.Event) error {
 	}
 
 	query := `
-        INSERT INTO events (id, resources, uid, name,description, start, end, location, CreatedAt, UpdatedAt, DTStamp)
-        VALUES (?, ?, ?, ?, ?,?, ?, ?, ?, ?,?)
+        INSERT INTO events (id, resources, uid, name,description, start, end, location, UpdatedAt)
+        VALUES (?, ?, ?, ?, ?,?, ?, ?, ?)
     `
 
-	result, err := db.Exec(query, event.ID, string(resourceIdsJSON), event.UID, event.Name,&event.Description, event.Start, event.End, event.Location , event.CreatedAt, event.UpdatedAt, event.DTStamp)
+	result, err := db.Exec(query, event.ID, string(resourceIdsJSON), event.UID, event.Name,&event.Description, event.Start, event.End, event.Location , event.UpdatedAt)
 	if err != nil {
 		return err
 	}
@@ -121,7 +121,7 @@ func GetEventsByResourceID(resourceID string) ([]models.Event, error) {
 	}
 	defer helpers.CloseDB(db)
 	
-	rows, err := db.Query("SELECT id, resources, uid, name,description, start, end, location, CreatedAt, UpdatedAt, DTStamp FROM events WHERE resources LIKE ?", "%"+resourceID+"%")
+	rows, err := db.Query("SELECT id, resources, uid, name,description, start, end, location, UpdatedAt FROM events WHERE resources LIKE ?", "%"+resourceID+"%")
 	if err != nil {
 		return nil, err
 	}
@@ -131,7 +131,7 @@ func GetEventsByResourceID(resourceID string) ([]models.Event, error) {
 	var resourcesJSON string
 	for rows.Next() {
 		var event models.Event
-		if err := rows.Scan(&event.ID, &resourcesJSON, &event.UID, &event.Name,&event.Description, &event.Start,  &event.End, &event.Location , &event.CreatedAt, &event.UpdatedAt, &event.DTStamp); err != nil {
+		if err := rows.Scan(&event.ID, &resourcesJSON, &event.UID, &event.Name,&event.Description, &event.Start,  &event.End, &event.Location , &event.UpdatedAt); err != nil {
 			return nil, err
 		}
 		err = json.Unmarshal([]byte(resourcesJSON), &event.Resources)
@@ -151,14 +151,14 @@ func GetEventByUID(id string) (*models.Event, error) {
 	defer helpers.CloseDB(db)
 
 	query := `
-        SELECT id, resources, uid, name, description, start, end, location, CreatedAt, UpdatedAt, DTStamp 
+        SELECT id, resources, uid, name, description, start, end, location, UpdatedAt 
         FROM events
         WHERE uid = ?
     `
 
 	var event models.Event
 	var resourcesJSON string
-	err = db.QueryRow(query, id).Scan(&event.ID, &resourcesJSON, &event.UID, &event.Name,&event.Description, &event.Start, &event.End, &event.Location , &event.CreatedAt, &event.UpdatedAt, &event.DTStamp)
+	err = db.QueryRow(query, id).Scan(&event.ID, &resourcesJSON, &event.UID, &event.Name,&event.Description, &event.Start, &event.End, &event.Location , &event.UpdatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil // Retourne nil si l'événement n'existe pas.

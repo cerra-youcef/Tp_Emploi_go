@@ -21,9 +21,7 @@ func InitializeDB(db *sql.DB) error {
             start TEXT NOT NULL,
 			end TEXT,
 			location TEXT,
-			CreatedAt TEXT,
-			UpdatedAt TEXT,
-			DTStamp TEXT
+			UpdatedAt TEXT
         );
     `
 

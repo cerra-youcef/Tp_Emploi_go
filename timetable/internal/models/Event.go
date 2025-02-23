@@ -13,7 +13,5 @@ type Event struct {
 	Start      string   `json:"start"`       // Heure de début
 	End        string      `json:"end"`         // Heure de fin (chaîne pour compatibilité)
 	Location   string      `json:"location"`    // Lieu de l'événement
-	CreatedAt  string   `json:"created_at"`  // Date de création
 	UpdatedAt  string   `json:"updated_at"`  // Dernière mise à jour
-	DTStamp    string      `json:"dtStamp"`     // Horodatage
 }
