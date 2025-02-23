@@ -136,12 +136,8 @@ func updateEventField(event models.Event, key, value string) models.Event {
 		event.Start = value
 	case "DTEND":
 		event.End = value
-	case "CREATED":
-		event.CreatedAt = value
 	case "LAST-MODIFIED":
 		event.UpdatedAt = value
-	case "DTSTAMP":
-		event.DTStamp = value
 	}
 	return event
 }
