@@ -17,7 +17,7 @@ func GetAllEvents() ([]models.Event, error) {
 	defer helpers.CloseDB(db)
 
 	query := `
-        SELECT id, resources, uid, name,description, start, end, location, UpdatedAt 
+        SELECT id, resources, uid, name,description, start, end, location, updated_at 
         FROM events
     `
 
@@ -56,7 +56,7 @@ func GetEventByID(id uuid.UUID) (*models.Event, error) {
 	defer helpers.CloseDB(db)
 
 	query := `
-        SELECT id, resources, uid, name, description, start, end, location, UpdatedAt 
+        SELECT id, resources, uid, name, description, start, end, location, updated_at 
         FROM events
         WHERE id = ?
     `
@@ -96,11 +96,11 @@ func CreateEvent(event *models.Event) error {
 	}
 
 	query := `
-        INSERT INTO events (id, resources, uid, name,description, start, end, location, UpdatedAt)
+        INSERT INTO events (id, resources, uid, name,description, start, end, location, updated_at)
         VALUES (?, ?, ?, ?, ?,?, ?, ?, ?)
     `
 
-	result, err := db.Exec(query, event.ID, string(resourceIdsJSON), event.UID, event.Name,&event.Description, event.Start, event.End, event.Location , event.UpdatedAt)
+	result, err := db.Exec(query, event.ID, string(resourceIdsJSON), event.UID, event.Name, event.Description, event.Start, event.End, event.Location , event.UpdatedAt)
 	if err != nil {
 		return err
 	}
@@ -121,7 +121,7 @@ func GetEventsByResourceID(resourceID string) ([]models.Event, error) {
 	}
 	defer helpers.CloseDB(db)
 	
-	rows, err := db.Query("SELECT id, resources, uid, name,description, start, end, location, UpdatedAt FROM events WHERE resources LIKE ?", "%"+resourceID+"%")
+	rows, err := db.Query("SELECT id, resources, uid, name,description, start, end, location, updated_at FROM events WHERE resources LIKE ?", "%"+resourceID+"%")
 	if err != nil {
 		return nil, err
 	}
@@ -151,7 +151,7 @@ func GetEventByUID(id string) (*models.Event, error) {
 	defer helpers.CloseDB(db)
 
 	query := `
-        SELECT id, resources, uid, name, description, start, end, location, UpdatedAt 
+        SELECT id, resources, uid, name, description, start, end, location, updated_at 
         FROM events
         WHERE uid = ?
     `
@@ -171,4 +171,38 @@ func GetEventByUID(id string) (*models.Event, error) {
 		return nil, err
 	}
 	return &event, nil
+}
+
+func UpdateEvent(event *models.Event) error {
+	if event.ID == uuid.Nil {
+		event.ID = uuid.New()
+	}
+
+	db, err := helpers.OpenDB() // Déclaration initiale.
+	if err != nil {
+		return err
+	}
+	defer helpers.CloseDB(db)
+
+	resourceIdsJSON, err := json.Marshal(event.Resources)
+	if err != nil {
+		return err
+	}
+
+	query := `
+	UPDATE events 
+	SET name = ?, description = ?, location = ?, start = ?, end = ?, updated_at = ?, resources = ?
+	WHERE uid = ?`
+
+	result, err := db.Exec(query, event.Name, event.Description, event.Location,  event.Start, event.End, event.UpdatedAt, string(resourceIdsJSON), event.UID)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil || rowsAffected == 0 {
+		return err
+	}
+
+	return nil
 }

@@ -50,7 +50,7 @@ func main() {
 			return //to keep the api runnig
 		}
 
-		err = natsConsumer.Consume(ctx, *consumer) // Pass the context with DB
+		err = natsConsumer.Consume(*consumer) // Pass the context with DB
 		if err != nil {
 			log.Printf("Error consuming messages: %v", err)
 			return //to keep the api runnig

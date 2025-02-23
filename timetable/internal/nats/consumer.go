@@ -59,7 +59,7 @@ func EventConsumer(js jetstream.JetStream) (*jetstream.Consumer, error) {
 }
 
 // Consume messages from NATS and store in DB
-func Consume(ctx context.Context, consumer jetstream.Consumer) error {
+func Consume(consumer jetstream.Consumer) error {
 	cc, err := consumer.Consume(func(msg jetstream.Msg) {
 		
 		var event models.Event
@@ -68,7 +68,7 @@ func Consume(ctx context.Context, consumer jetstream.Consumer) error {
 			_ = msg.Nak()
 			return
 		}
-		log.Printf("Received event: uid : %s Name: %s\n",event.UID,event.Name )
+		//log.Printf("Received event: uid : %s Name: %s\n",event.UID,event.Name )
 
 		// Store in database if it doesn't exist
 		existingEvent, err := Events.GetEventByUID(event.UID)
@@ -82,11 +82,21 @@ func Consume(ctx context.Context, consumer jetstream.Consumer) error {
 			err := Events.CreateEvent(&event)
 			if err != nil {
 				log.Println("Error storing event:", err)
-			} else {
-				log.Println("New event stored:", event.UID)
+				} else {
+					log.Println("New event stored:", event.UID)
+					printAlert("event.created", event)
 			}
 		} else {
-			log.Println("Event already exists, skipping:", event.UID)
+			// Compare changes and update (event exist)
+			changes := detectChanges(*existingEvent, event)
+			if len(changes) > 0 {
+				log.Println("Event updated, publishing alert:")
+				printAlert("event.updated", event, changes)
+				err := Events.UpdateEvent(&event)
+				if err != nil {
+					log.Println("Error updating event:", err)
+				}
+			}
 		}
 		_ = msg.Ack()
 	})
@@ -96,4 +106,41 @@ func Consume(ctx context.Context, consumer jetstream.Consumer) error {
 	cc.Stop()
 
 	return err
+}
+
+func printAlert(alertType string, event models.Event, changes ...map[string]string){
+	natsMessage := map[string]interface{}{
+		"type":  alertType,
+		"event": event,
+	}
+
+	if len(changes) > 0 {
+		natsMessage["changes"] = changes[0]
+	}
+
+	//message, _ := json.Marshal(natsMessage)
+	log.Println(natsMessage["type"])
+	log.Println(natsMessage["changes"])
+}
+
+func detectChanges(oldEvent, newEvent models.Event) map[string]string {
+	changes := make(map[string]string)
+
+	if oldEvent.Name != newEvent.Name {
+		changes["name"] = newEvent.Name
+	}
+	if oldEvent.Description != newEvent.Description {
+		changes["description"] = newEvent.Description
+	}
+	if oldEvent.Location != newEvent.Location {
+		changes["location"] = newEvent.Location
+	}
+	if oldEvent.Start != newEvent.Start {
+		changes["start"] = newEvent.Start
+	}
+	if oldEvent.End != newEvent.End {
+		changes["end"] = newEvent.End
+	}
+
+	return changes
 }
