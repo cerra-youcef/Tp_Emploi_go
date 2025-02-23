@@ -39,18 +39,21 @@ func main() {
 		log.Println("Starting NATS Consumer...")
 		js, nc, err := natsConsumer.ConnectToNATS()
 		if err != nil {
-			log.Fatalf("Error connecting to NATS: %v", err)
+			log.Printf("Error connecting to NATS: %v", err)
+			return //to keep the api runnig
 		}
 		defer nc.Close()
 
 		consumer, err := natsConsumer.EventConsumer(js)
 		if err != nil {
-			log.Fatalf("Error creating NATS Consumer: %v", err)
+			log.Printf("Error creating NATS Consumer: %v", err)
+			return //to keep the api runnig
 		}
 
 		err = natsConsumer.Consume(ctx, *consumer) // ✅ Pass the context with DB
 		if err != nil {
-			log.Fatalf("Error consuming messages: %v", err)
+			log.Printf("Error consuming messages: %v", err)
+			return //to keep the api runnig
 		}
 	}()
 
