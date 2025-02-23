@@ -49,7 +49,7 @@ func FetchAndPublishEvents(ctx context.Context) {
 func StartScheduler() {
 	ctx := context.Background()
 	sc := scheduler.NewScheduler()
-	sc.Add(ctx, FetchAndPublishEvents, time.Minute*1) // Runs every 1 mins
+	sc.Add(ctx, FetchAndPublishEvents, time.Second*5) // Runs every 1 mins
 
 	// Keep program alive
 	quit := make(chan struct{})
