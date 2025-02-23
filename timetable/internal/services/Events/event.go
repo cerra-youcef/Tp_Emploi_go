@@ -36,3 +36,7 @@ func GetEventByUID(id string) (*models.Event, error) {
 func UpdateEvent(event *models.Event) error {
 	return Events.UpdateEvent(event)
 }
+
+func DeleteEvent(id uuid.UUID) error {
+	return Events.DeleteEvent(id)
+}

@@ -60,14 +60,19 @@ func EventConsumer(js jetstream.JetStream) (*jetstream.Consumer, error) {
 
 // Consume messages from NATS and store in DB
 func Consume(consumer jetstream.Consumer) error {
+	//var receivedEvents []models.Event // Store received events
+
 	cc, err := consumer.Consume(func(msg jetstream.Msg) {
 		
 		var event models.Event
+
 		if err := json.Unmarshal(msg.Data(), &event); err != nil {
 			log.Println("Error decoding event:", err)
 			_ = msg.Nak()
 			return
 		}
+		//receivedEvents = append(receivedEvents, event) // Track received events
+
 		//log.Printf("Received event: uid : %s Name: %s\n",event.UID,event.Name )
 
 		// Store in database if it doesn't exist
@@ -98,11 +103,12 @@ func Consume(consumer jetstream.Consumer) error {
 				}
 			}
 		}
+		//detectDeletedEvents(receivedEvents) // Check for deleted events once all events are received
 		_ = msg.Ack()
 	})
 
-	// Keep the consumer running
-	<-cc.Closed()
+
+	<-cc.Closed() // Wait for the consumer to stop receiving messages
 	cc.Stop()
 
 	return err
@@ -143,4 +149,39 @@ func detectChanges(oldEvent, newEvent models.Event) map[string]string {
 	}
 
 	return changes
+}
+
+// Detect and handle deleted events
+func detectDeletedEvents(receivedEvents []models.Event) {
+
+	if len(receivedEvents) == 0 {
+		log.Println("No events received, skipping deletion check.")
+		return
+	}
+	// Fetch all existing events from DB
+	existingEvents, err := Events.GetAllEvents()
+	if err != nil {
+		log.Println("Error fetching events from DB:", err)
+		return
+	}
+
+	// Create a map of received event UIDs
+	receivedUIDs := make(map[string]bool)
+	for _, event := range receivedEvents {
+		receivedUIDs[event.UID] = true
+	}
+
+	// Check which events exist in DB but were NOT received
+	for _, storedEvent := range existingEvents {
+		if !receivedUIDs[storedEvent.UID] {
+			log.Println("Event deleted:", storedEvent.UID)
+			printAlert("event.deleted", storedEvent)
+			// Delete the event from DB if needed
+			err := Events.DeleteEvent(storedEvent.ID)
+			if err != nil {
+				log.Println("Error deleting event ", err)
+				return
+			}
+		}
+	}
 }

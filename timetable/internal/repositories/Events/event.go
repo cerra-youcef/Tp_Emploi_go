@@ -206,3 +206,23 @@ func UpdateEvent(event *models.Event) error {
 
 	return nil
 }
+
+func DeleteEvent(id uuid.UUID) error {
+	db, err := helpers.OpenDB()
+	if err != nil {
+		return err
+	}
+	defer helpers.CloseDB(db)
+
+	query := "DELETE FROM events WHERE id = ?"
+	result, err := db.Exec(query, id)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil || rowsAffected == 0 {
+		return err
+	}
+	return nil
+}
