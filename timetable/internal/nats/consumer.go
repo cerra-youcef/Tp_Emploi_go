@@ -34,7 +34,7 @@ func EventConsumer(js jetstream.JetStream) (*jetstream.Consumer, error) {
 	defer cancel()
 
 	// Get existing stream
-	stream, err := js.Stream(ctx, "USERS")
+	stream, err := js.Stream(ctx, "EVENTS")
 	if err != nil {
 		return nil, err
 	}
@@ -44,8 +44,8 @@ func EventConsumer(js jetstream.JetStream) (*jetstream.Consumer, error) {
 	if err != nil {
 		// Create if it doesn’t exist
 		consumer, err = stream.CreateConsumer(ctx, jetstream.ConsumerConfig{
-			Durable:     "timetable_consumer",
-			Name:        "Timetable Consumer",
+			Durable:     "TimetableConsumer",
+			Name:        "TimetableConsumer",
 			Description: "Consumes events for timetable",
 		})
 		if err != nil {
