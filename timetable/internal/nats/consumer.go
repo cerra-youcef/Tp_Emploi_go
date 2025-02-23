@@ -68,7 +68,7 @@ func Consume(ctx context.Context, consumer jetstream.Consumer) error {
 			_ = msg.Nak()
 			return
 		}
-		log.Printf("Received event: ID: %s, Resource: %d, Name: %s\n", event.ID,event.Resource,event.Name )
+		log.Printf("Received event: ID: %s,uid : %s Name: %s\n", event.ID,event.UID,event.Name )
 
 		// Store in database if it doesn't exist
 		existingEvent, err := Events.GetEventByID(event.ID)
