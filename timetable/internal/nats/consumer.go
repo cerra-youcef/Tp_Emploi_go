@@ -83,10 +83,10 @@ func Consume(ctx context.Context, consumer jetstream.Consumer) error {
 			if err != nil {
 				log.Println("Error storing event:", err)
 			} else {
-				log.Println("New event stored:", event.ID)
+				log.Println("New event stored:", event.UID)
 			}
 		} else {
-			log.Println("Event already exists, skipping:", event.ID)
+			log.Println("Event already exists, skipping:", event.UID)
 		}
 		_ = msg.Ack()
 	})
