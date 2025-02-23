@@ -3,11 +3,10 @@ package natsConsumer
 import (
 	"context"
 	"encoding/json"
-	"database/sql"
 	"log"
 	"time"
-	"timetable/internal/helpers"
 	"timetable/internal/models"
+	"timetable/internal/services/Events"
 
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
@@ -62,35 +61,33 @@ func EventConsumer(js jetstream.JetStream) (*jetstream.Consumer, error) {
 // Consume messages from NATS and store in DB
 func Consume(ctx context.Context, consumer jetstream.Consumer) error {
 	cc, err := consumer.Consume(func(msg jetstream.Msg) {
-		log.Println("Received event:", string(msg.Data()))
-
+		
 		var event models.Event
 		if err := json.Unmarshal(msg.Data(), &event); err != nil {
 			log.Println("Error decoding event:", err)
 			_ = msg.Nak()
 			return
 		}
-
-		db := helpers.GetDBFromContext(ctx)
+		log.Printf("Received event: ID: %s, Resource: %d, Name: %s\n", event.ID,event.Resource,event.Name )
 
 		// Store in database if it doesn't exist
-		var existing models.Event
-		err := db.QueryRow("SELECT id FROM events WHERE id = ?", event.ID).Scan(&existing.ID)
+		existingEvent, err := Events.GetEventByID(event.ID)
+		if err != nil {
+			log.Println("Error checking event existence:", err)
+			_ = msg.Nak()
+			return
+		}
 
-		if err == sql.ErrNoRows {
-			_, err := db.Exec("INSERT INTO events (id, name, start) VALUES (?, ?, ?)", event.ID, event.Name, event.Start)
+		if existingEvent == nil {
+			err := Events.CreateEvent(&event)
 			if err != nil {
 				log.Println("Error storing event:", err)
 			} else {
 				log.Println("New event stored:", event.ID)
 			}
-		} else if err != nil {
-			log.Println("Error checking event existence:", err)
 		} else {
 			log.Println("Event already exists, skipping:", event.ID)
 		}
-		
-
 		_ = msg.Ack()
 	})
 
