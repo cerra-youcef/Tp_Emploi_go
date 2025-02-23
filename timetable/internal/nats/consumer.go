@@ -7,6 +7,7 @@ import (
 	"time"
 	"timetable/internal/models"
 	"timetable/internal/services/Events"
+	"timetable/internal/helpers"
 
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
@@ -89,21 +90,21 @@ func Consume(consumer jetstream.Consumer) error {
 				log.Println("Error storing event:", err)
 				} else {
 					log.Println("New event stored:", event.UID)
-					printAlert("event.created", event)
+					helpers.PrintAlert("event.created", event)
 			}
 		} else {
 			// Compare changes and update (event exist)
-			changes := detectChanges(*existingEvent, event)
+			changes := helpers.DetectChanges(*existingEvent, event)
 			if len(changes) > 0 {
 				log.Println("Event updated, publishing alert:")
-				printAlert("event.updated", event, changes)
+				helpers.PrintAlert("event.updated", event, changes)
 				err := Events.UpdateEvent(&event)
 				if err != nil {
 					log.Println("Error updating event:", err)
 				}
 			}
 		}
-		//detectDeletedEvents(receivedEvents) // Check for deleted events once all events are received
+		//helpers.DetectDeletedEvents(receivedEvents) // Check for deleted events once all events are received
 		_ = msg.Ack()
 	})
 
@@ -114,45 +115,9 @@ func Consume(consumer jetstream.Consumer) error {
 	return err
 }
 
-func printAlert(alertType string, event models.Event, changes ...map[string]string){
-	natsMessage := map[string]interface{}{
-		"type":  alertType,
-		"event": event,
-	}
-
-	if len(changes) > 0 {
-		natsMessage["changes"] = changes[0]
-	}
-
-	//message, _ := json.Marshal(natsMessage)
-	log.Println(natsMessage["type"])
-	log.Println(natsMessage["changes"])
-}
-
-func detectChanges(oldEvent, newEvent models.Event) map[string]string {
-	changes := make(map[string]string)
-
-	if oldEvent.Name != newEvent.Name {
-		changes["name"] = newEvent.Name
-	}
-	if oldEvent.Description != newEvent.Description {
-		changes["description"] = newEvent.Description
-	}
-	if oldEvent.Location != newEvent.Location {
-		changes["location"] = newEvent.Location
-	}
-	if oldEvent.Start != newEvent.Start {
-		changes["start"] = newEvent.Start
-	}
-	if oldEvent.End != newEvent.End {
-		changes["end"] = newEvent.End
-	}
-
-	return changes
-}
 
 // Detect and handle deleted events
-func detectDeletedEvents(receivedEvents []models.Event) {
+func DetectDeletedEvents(receivedEvents []models.Event) {
 
 	if len(receivedEvents) == 0 {
 		log.Println("No events received, skipping deletion check.")
@@ -175,7 +140,7 @@ func detectDeletedEvents(receivedEvents []models.Event) {
 	for _, storedEvent := range existingEvents {
 		if !receivedUIDs[storedEvent.UID] {
 			log.Println("Event deleted:", storedEvent.UID)
-			printAlert("event.deleted", storedEvent)
+			helpers.PrintAlert("event.deleted", storedEvent)
 			// Delete the event from DB if needed
 			err := Events.DeleteEvent(storedEvent.ID)
 			if err != nil {
