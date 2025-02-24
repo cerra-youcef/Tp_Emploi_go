@@ -11,9 +11,7 @@ import (
 	"github.com/zhashkevych/scheduler"
 )
 
-func FetchAndPublishEvents(ctx context.Context) {
-	configURL := "http://localhost:8080"
-
+func FetchAndPublishEvents(ctx context.Context, configURL string, ucaURL string) {
 	// Fetch resources
 	resources, err := apiClients.FetchResourcesFromConfig(configURL)
 	if err != nil {
@@ -28,7 +26,7 @@ func FetchAndPublishEvents(ctx context.Context) {
 	}
 
 	// Fetch events for these resources
-	events, err := apiClients.FetchEventsFromUCA(resourceIDs)
+	events, err := apiClients.FetchEventsFromUCA(ucaURL, resourceIDs)
 	if err != nil {
 		log.Println("Error fetching events:", err)
 		return
@@ -46,10 +44,13 @@ func FetchAndPublishEvents(ctx context.Context) {
 }
 
 // Start scheduler
-func StartScheduler() {
+func StartScheduler(configURL string, ucaURL string) {
+
 	ctx := context.Background()
 	sc := scheduler.NewScheduler()
-	sc.Add(ctx, FetchAndPublishEvents, time.Second*5) // Runs every 1 mins
+	sc.Add(ctx, func(ctx context.Context) {
+		FetchAndPublishEvents(ctx, configURL, ucaURL)
+	}, time.Second*5) // Runs every 5 seconds (adjust as needed)
 
 	// Keep program alive
 	quit := make(chan struct{})

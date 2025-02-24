@@ -11,7 +11,7 @@ import (
 )
 
 // FetchEventsFromUCA iterates over resource IDs and fetches events separately for each.
-func FetchEventsFromUCA(resourceIDs []int) ([]models.Event, error) {
+func FetchEventsFromUCA(ucaURL string ,resourceIDs []int) ([]models.Event, error) {
 	if len(resourceIDs) == 0 {
 		return nil, fmt.Errorf("no resource IDs provided")
 	}
@@ -19,7 +19,7 @@ func FetchEventsFromUCA(resourceIDs []int) ([]models.Event, error) {
 	eventMap := make(map[string]*models.Event) // Map UID -> Event
 
 	for _, resourceID := range resourceIDs {
-		events, err := fetchEventsForSingleResource(resourceID)
+		events, err := fetchEventsForSingleResource(ucaURL, resourceID)
 		if err != nil {
 			return nil, fmt.Errorf("error fetching events for resource %d: %v", resourceID, err)
 		}
@@ -47,8 +47,8 @@ func FetchEventsFromUCA(resourceIDs []int) ([]models.Event, error) {
 }
 
 // fetchEventsForSingleResource fetches events for a single resource ID
-func fetchEventsForSingleResource(resourceID int) ([]models.Event, error) {
-	url := buildUCAURL(resourceID)
+func fetchEventsForSingleResource(ucaURL string, resourceID int) ([]models.Event, error) {
+	url := fmt.Sprintf(ucaURL,resourceID)
 
 	resp, err := http.Get(url)
 	if err != nil {
@@ -62,14 +62,6 @@ func fetchEventsForSingleResource(resourceID int) ([]models.Event, error) {
 	}
 
 	return parseEvents(rawData, resourceID), nil
-}
-
-// buildUCAURL constructs the UCA API URL for a given resource ID
-func buildUCAURL(resourceID int) string {
-	return fmt.Sprintf(
-		"https://edt.uca.fr/jsp/custom/modules/plannings/anonymous_cal.jsp?resources=%d&projectId=2&calType=ical&nbWeeks=8&displayConfigId=128",
-		resourceID,
-	)
 }
 
 // parseEvents parses the raw iCalendar data and assigns the correct resource ID
