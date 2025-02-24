@@ -15,7 +15,7 @@ import (
 	"github.com/swaggo/http-swagger"
 	"github.com/go-chi/cors"
 	_ "timetable/api"
-	"timetable/internal/nats"
+	"timetable/internal/nats/consumer"
 )
 
 func main() {

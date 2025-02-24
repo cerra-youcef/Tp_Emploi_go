@@ -4,6 +4,8 @@ import (
 	"github.com/google/uuid"
 	"timetable/internal/models"
 	"timetable/internal/repositories/Events"
+	"timetable/internal/helpers"
+	"timetable/internal/nats/publisher"
 )
 
 // GetEventsByResourceID récupère les événements associés à une ressource spécifique.
@@ -39,4 +41,23 @@ func UpdateEvent(event *models.Event) error {
 
 func DeleteEvent(id uuid.UUID) error {
 	return Events.DeleteEvent(id)
+}
+
+
+func CreateAndNotifyEvent(event models.Event) error {
+	if err := Events.CreateEvent(&event); err != nil {
+		return err
+	}
+	return natsPublisher.PublishAlert("create", helpers.CreateAlert("event.created", event))
+}
+
+func UpdateAndNotifyEvent(oldEvent, newEvent models.Event) error {
+	changes := helpers.DetectChanges(oldEvent, newEvent)
+	if len(changes) == 0 {
+		return nil
+	}
+	if err := Events.UpdateEvent(&newEvent); err != nil {
+		return err
+	}
+	return natsPublisher.PublishAlert("updated", helpers.CreateAlert("event.updated", newEvent, changes))
 }

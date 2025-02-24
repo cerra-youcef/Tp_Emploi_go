@@ -7,7 +7,7 @@ import (
 	"time"
 	"timetable/internal/models"
 	"timetable/internal/services/Events"
-	"timetable/internal/helpers"
+	"timetable/internal/nats/publisher"
 
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
@@ -24,7 +24,6 @@ func ConnectToNATS() (jetstream.JetStream, *nats.Conn, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-
 	return js, nc, nil
 }
 
@@ -40,7 +39,7 @@ func EventConsumer(js jetstream.JetStream) (*jetstream.Consumer, error) {
 	}
 
 	// Get or create a durable consumer
-	consumer, err := stream.Consumer(ctx, "timetable_consumer")
+	consumer, err := stream.Consumer(ctx, "TimetableConsumer")
 	if err != nil {
 		// Create if it doesn’t exist
 		consumer, err = stream.CreateConsumer(ctx, jetstream.ConsumerConfig{
@@ -61,61 +60,45 @@ func EventConsumer(js jetstream.JetStream) (*jetstream.Consumer, error) {
 
 // Consume messages from NATS and store in DB
 func Consume(consumer jetstream.Consumer) error {
-	//var receivedEvents []models.Event // Store received events
+	natsPublisher.InitNATS();
 
 	cc, err := consumer.Consume(func(msg jetstream.Msg) {
-		
-		var event models.Event
 
+		var event models.Event
 		if err := json.Unmarshal(msg.Data(), &event); err != nil {
 			log.Println("Error decoding event:", err)
 			_ = msg.Nak()
 			return
 		}
-		//receivedEvents = append(receivedEvents, event) // Track received events
 
-		//log.Printf("Received event: uid : %s Name: %s\n",event.UID,event.Name )
-
-		// Store in database if it doesn't exist
 		existingEvent, err := Events.GetEventByUID(event.UID)
 		if err != nil {
 			log.Println("Error checking event existence:", err)
 			_ = msg.Nak()
 			return
 		}
-
+		//create event if it doesnt exist or update it otherwise & publish alert
 		if existingEvent == nil {
-			err := Events.CreateEvent(&event)
+			err := Events.CreateAndNotifyEvent(event)
 			if err != nil {
-				log.Println("Error storing event:", err)
-				} else {
-					log.Println("New event stored:", event.UID)
-					helpers.PrintAlert("event.created", event)
+				log.Println("Error Creating Event and publishing alert : ", err)		
 			}
 		} else {
-			// Compare changes and update (event exist)
-			changes := helpers.DetectChanges(*existingEvent, event)
-			if len(changes) > 0 {
-				log.Println("Event updated, publishing alert:")
-				helpers.PrintAlert("event.updated", event, changes)
-				err := Events.UpdateEvent(&event)
-				if err != nil {
-					log.Println("Error updating event:", err)
-				}
+			err := Events.UpdateAndNotifyEvent(*existingEvent, event)
+			if err != nil {
+				log.Println("Error Updating Event and publishing alert : ", err)		
 			}
 		}
-		//helpers.DetectDeletedEvents(receivedEvents) // Check for deleted events once all events are received
 		_ = msg.Ack()
 	})
 
-
-	<-cc.Closed() // Wait for the consumer to stop receiving messages
+	<-cc.Closed()
 	cc.Stop()
 
 	return err
 }
 
-
+/*
 // Detect and handle deleted events
 func DetectDeletedEvents(receivedEvents []models.Event) {
 
@@ -140,7 +123,7 @@ func DetectDeletedEvents(receivedEvents []models.Event) {
 	for _, storedEvent := range existingEvents {
 		if !receivedUIDs[storedEvent.UID] {
 			log.Println("Event deleted:", storedEvent.UID)
-			helpers.PrintAlert("event.deleted", storedEvent)
+			helpers.CreateAlert("event.deleted", storedEvent)
 			// Delete the event from DB if needed
 			err := Events.DeleteEvent(storedEvent.ID)
 			if err != nil {
@@ -149,4 +132,4 @@ func DetectDeletedEvents(receivedEvents []models.Event) {
 			}
 		}
 	}
-}
+}*/
