@@ -16,6 +16,7 @@ import (
 	"github.com/swaggo/http-swagger"
 	"github.com/go-chi/cors"
 	_ "config/api"
+	"config/internal/nats"
 )
 
 func main() {
@@ -29,6 +30,29 @@ func main() {
 	if err := helpers.InitializeDB(db); err != nil {
 		log.Fatalf("Error initializing database: %s", err.Error())
 	}
+
+	//Start NATS Consumer in a Goroutine with context
+	go func() {
+		log.Println("Starting NATS Consumer...")
+		js, nc, err := natsConsumer.ConnectToNATS()
+		if err != nil {
+			log.Printf("Error connecting to NATS: %v", err)
+			return //to keep the api runnig
+		}
+		defer nc.Close()
+
+		consumer, err := natsConsumer.AlertConsumer(js)
+		if err != nil {
+			log.Printf("Error creating NATS Consumer: %v", err)
+			return //to keep the api runnig
+		}
+
+		err = natsConsumer.Consume(*consumer) // Pass the context with DB
+		if err != nil {
+			log.Printf("Error consuming messages: %v", err)
+			return //to keep the api runnig
+		}
+	}()
 
 	// Création du routeur Chi
 	r := chi.NewRouter()
