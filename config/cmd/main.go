@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"github.com/joho/godotenv"
 	"os/signal"
 	"syscall"
 	"time"
@@ -20,6 +21,13 @@ import (
 )
 
 func main() {
+	err := godotenv.Load()
+    if err != nil {
+        log.Fatalf("Error loading .env file: %s", err.Error())
+    }
+
+    port := os.Getenv("PORT")
+
 	db, err := helpers.OpenDB()
 	if err != nil {
 		log.Fatalf("Error while opening database: %s", err.Error())
@@ -91,7 +99,7 @@ func main() {
 
 	// Swagger UI Route
 	r.Get("/swagger/*", httpSwagger.Handler(
-		httpSwagger.URL("http://localhost:8080/swagger/doc.json"), // Point to your swagger.json
+		httpSwagger.URL("http://localhost:"+port+"/swagger/doc.json"), // Point to your swagger.json
 	))
 
 	// Passage de la connexion DB au contexte pour une utilisation globale
@@ -99,7 +107,7 @@ func main() {
 
 	// Démarrage du serveur HTTP avec un gestionnaire de contexte
 	server := &http.Server{
-		Addr:         ":8080",
+		Addr:         ":" + port,
 		Handler:      r,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
@@ -112,7 +120,7 @@ func main() {
 
 	// Démarrer le serveur dans un goroutine
 	go func() {
-		log.Println("Web server started. Listening on :8080")
+		log.Println("Web server started. Listening on :"+port)
 		if err := server.ListenAndServe(); err != http.ErrServerClosed {
 			log.Fatalf("Error starting server: %v", err)
 		}
