@@ -53,3 +53,23 @@ func PublishEvent(subject string, eventData interface{}) error {
 		return errors.New(string(pubAckFuture.Msg().Data))
 	}
 }
+
+func PublishEndMessage() error {
+
+	messageBytes, err := json.Marshal("End of publishing current Events")
+	if err != nil {
+		return err
+	}
+
+	pubAckFuture, err := jsc.PublishAsync("EVENTS.end", messageBytes)
+	if err != nil {
+		return err
+	}
+
+	select {
+	case <-pubAckFuture.Ok():
+		return nil
+	case <-pubAckFuture.Err():
+		return errors.New(string(pubAckFuture.Msg().Data))
+	}
+}

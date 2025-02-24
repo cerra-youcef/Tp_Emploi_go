@@ -40,6 +40,12 @@ func FetchAndPublishEvents(ctx context.Context, configURL string, ucaURL string)
 		}
 	}
 
+	// Publish "end of publishing" message
+	err = nats.PublishEndMessage()
+	if err != nil {
+		log.Println("Error publishing end of publishing message:", err)
+	}
+
 	log.Println("Successfully fetched & published events")
 }
 
