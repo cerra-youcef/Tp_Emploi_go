@@ -43,7 +43,6 @@ func DeleteEvent(id uuid.UUID) error {
 	return Events.DeleteEvent(id)
 }
 
-
 func CreateAndNotifyEvent(event models.Event) error {
 	if err := Events.CreateEvent(&event); err != nil {
 		return err
@@ -59,5 +58,39 @@ func UpdateAndNotifyEvent(oldEvent, newEvent models.Event) error {
 	if err := Events.UpdateEvent(&newEvent); err != nil {
 		return err
 	}
-	return natsPublisher.PublishAlert("updated", helpers.CreateAlert("event.updated", newEvent, changes))
+	return natsPublisher.PublishAlert("update", helpers.CreateAlert("event.updated", newEvent, changes))
+}
+
+func DeleteAndNotifyEvent(event models.Event) error {
+	if err := DeleteEvent(event.ID); err!= nil {
+		return err
+	}
+	return natsPublisher.PublishAlert("delete", helpers.CreateAlert("event.deleted", event))
+}
+
+// Detect and handle deleted events
+func DeleteRemovedEvents(receivedEvents []models.Event) error {
+
+	if len(receivedEvents) == 0 {
+		return nil
+	}
+
+	existingEvents, err := GetAllEvents(); 
+	if err != nil {
+		return err
+	}
+
+	receivedUIDs := make(map[string]bool)
+	for _, event := range receivedEvents {
+		receivedUIDs[event.UID] = true
+	}
+
+	for _, storedEvent := range existingEvents {
+		if !receivedUIDs[storedEvent.UID] {
+			if err := DeleteAndNotifyEvent(storedEvent); err!= nil {
+				return err
+			}
+		}
+	}
+	return nil
 }

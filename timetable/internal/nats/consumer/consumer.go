@@ -61,8 +61,19 @@ func EventConsumer(js jetstream.JetStream) (*jetstream.Consumer, error) {
 // Consume messages from NATS and store in DB
 func Consume(consumer jetstream.Consumer) error {
 	natsPublisher.InitNATS();
-
+	var receivedEvents []models.Event // Store received events
 	cc, err := consumer.Consume(func(msg jetstream.Msg) {
+
+		subject := msg.Subject()
+
+		//if all events are received we can check for removed ones
+		if subject == "EVENTS.end" {
+			if  err := Events.DeleteRemovedEvents(receivedEvents); err != nil {
+				log.Println("Error Deleting Event and publishing alert : ", err)		
+			}
+			_ = msg.Ack()
+			return
+		}
 
 		var event models.Event
 		if err := json.Unmarshal(msg.Data(), &event); err != nil {
@@ -70,8 +81,9 @@ func Consume(consumer jetstream.Consumer) error {
 			_ = msg.Nak()
 			return
 		}
+		receivedEvents = append(receivedEvents, event) // Track received events
 
-		existingEvent, err := Events.GetEventByUID(event.UID)
+		existingEvent, err := Events.GetEventByUID(event.UID); 
 		if err != nil {
 			log.Println("Error checking event existence:", err)
 			_ = msg.Nak()
@@ -79,13 +91,11 @@ func Consume(consumer jetstream.Consumer) error {
 		}
 		//create event if it doesnt exist or update it otherwise & publish alert
 		if existingEvent == nil {
-			err := Events.CreateAndNotifyEvent(event)
-			if err != nil {
+			if err := Events.CreateAndNotifyEvent(event); err != nil {
 				log.Println("Error Creating Event and publishing alert : ", err)		
 			}
 		} else {
-			err := Events.UpdateAndNotifyEvent(*existingEvent, event)
-			if err != nil {
+			if err := Events.UpdateAndNotifyEvent(*existingEvent, event); err != nil {
 				log.Println("Error Updating Event and publishing alert : ", err)		
 			}
 		}
@@ -97,39 +107,3 @@ func Consume(consumer jetstream.Consumer) error {
 
 	return err
 }
-
-/*
-// Detect and handle deleted events
-func DetectDeletedEvents(receivedEvents []models.Event) {
-
-	if len(receivedEvents) == 0 {
-		log.Println("No events received, skipping deletion check.")
-		return
-	}
-	// Fetch all existing events from DB
-	existingEvents, err := Events.GetAllEvents()
-	if err != nil {
-		log.Println("Error fetching events from DB:", err)
-		return
-	}
-
-	// Create a map of received event UIDs
-	receivedUIDs := make(map[string]bool)
-	for _, event := range receivedEvents {
-		receivedUIDs[event.UID] = true
-	}
-
-	// Check which events exist in DB but were NOT received
-	for _, storedEvent := range existingEvents {
-		if !receivedUIDs[storedEvent.UID] {
-			log.Println("Event deleted:", storedEvent.UID)
-			helpers.CreateAlert("event.deleted", storedEvent)
-			// Delete the event from DB if needed
-			err := Events.DeleteEvent(storedEvent.ID)
-			if err != nil {
-				log.Println("Error deleting event ", err)
-				return
-			}
-		}
-	}
-}*/
