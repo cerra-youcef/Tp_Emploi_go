@@ -1,11 +1,11 @@
 package natsConsumer
 
 import (
+	"config/internal/models"
 	"context"
 	"encoding/json"
 	"log"
 	"time"
-	"config/internal/models"
 
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
@@ -57,7 +57,7 @@ func AlertConsumer(js jetstream.JetStream) (*jetstream.Consumer, error) {
 }
 
 func Consume(consumer jetstream.Consumer) error {
-	
+
 	cc, err := consumer.Consume(func(msg jetstream.Msg) {
 
 		var alert models.AlertConsumer

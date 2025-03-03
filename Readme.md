@@ -8,3 +8,6 @@
 - remove post method from timetable
 - remove model error
 - manage errors in a better way
+- add addstream to all
+- alert ; preconfigure , email (groupe), 
+- switch to uuid
