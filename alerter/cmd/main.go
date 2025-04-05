@@ -2,6 +2,7 @@ package main
 
 import (
 	"alerter/internal/alerter"
+	"alerter/internal/mailSender"
 	"context"
 	"errors"
 	"log/slog"
@@ -16,6 +17,8 @@ import (
 type Config struct {
 	ConfigURL    string
 	TimetableURL string
+	mailToken    string
+	apiURL       string
 }
 
 func loadConfig() (Config, error) {
@@ -30,6 +33,13 @@ func loadConfig() (Config, error) {
 		return cfg, errors.New("TIMETABLE_URL not set in .env file")
 	}
 
+	if cfg.mailToken, ok = os.LookupEnv("MAIL_TOKEN"); !ok {
+		return cfg, errors.New("MAIL_TOKEN not set in .env file")
+	}
+
+	if cfg.apiURL, ok = os.LookupEnv("API_URL"); !ok {
+		return cfg, errors.New("MAIL_TOKEN not set in .env file")
+	}
 	return cfg, nil
 }
 
@@ -56,7 +66,7 @@ func main() {
 	}
 
 	// Load configuration
-	_, err := loadConfig()
+	cfg, err := loadConfig()
 	if err != nil {
 		slog.Error("Configuration error", "error", err)
 		os.Exit(1)
@@ -76,6 +86,18 @@ func main() {
 			cancel() // Trigger shutdown if consumer fails
 		}
 	}()
+
+	// Exemple d'utilisation
+	to := "yanis.beldjilali@etu.uca.fr"
+	subject := "Test"
+	content := "Ceci est un test d'envoi d'email via l'API GCC."
+
+	err = mailSender.SendEmail(to, subject, content, cfg.mailToken, cfg.apiURL)
+	if err != nil {
+		slog.Error("MAIL ERROR", "error", err)
+	} else {
+		slog.Error("NO ERROR", "succes", err)
+	}
 
 	// Wait for shutdown
 	<-ctx.Done()
