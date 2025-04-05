@@ -11,3 +11,4 @@
 - add addstream to all
 - alert ; preconfigure , email (groupe), 
 - switch to uuid
+- split alert consumer maybe
