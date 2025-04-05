@@ -1,32 +1,32 @@
 package main
 
 import (
-	"context"
-	"log"
-	"net/http"
-	"os"
-	"github.com/joho/godotenv"
-	"os/signal"
-	"syscall"
-	"time"
+	_ "config/api"
 	"config/internal/controllers"
 	"config/internal/controllers/Alerts"
 	"config/internal/controllers/Resources"
 	"config/internal/helpers"
+	"context"
+	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
 	"github.com/go-chi/chi/v5"
-	"github.com/swaggo/http-swagger"
 	"github.com/go-chi/cors"
-	_ "config/api"
-	"config/internal/nats"
+	"github.com/joho/godotenv"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func main() {
 	err := godotenv.Load()
-    if err != nil {
-        log.Fatalf("Error loading .env file: %s", err.Error())
-    }
+	if err != nil {
+		log.Fatalf("Error loading .env file: %s", err.Error())
+	}
 
-    port := os.Getenv("PORT")
+	port := os.Getenv("PORT")
 
 	db, err := helpers.OpenDB()
 	if err != nil {
@@ -39,61 +39,38 @@ func main() {
 		log.Fatalf("Error initializing database: %s", err.Error())
 	}
 
-	//Start NATS Consumer in a Goroutine with context
-	go func() {
-		log.Println("Starting NATS Consumer...")
-		js, nc, err := natsConsumer.ConnectToNATS()
-		if err != nil {
-			log.Printf("Error connecting to NATS: %v", err)
-			return //to keep the api runnig
-		}
-		defer nc.Close()
-
-		consumer, err := natsConsumer.AlertConsumer(js)
-		if err != nil {
-			log.Printf("Error creating NATS Consumer: %v", err)
-			return //to keep the api runnig
-		}
-
-		err = natsConsumer.Consume(*consumer) // Pass the context with DB
-		if err != nil {
-			log.Printf("Error consuming messages: %v", err)
-			return //to keep the api runnig
-		}
-	}()
-
 	// Création du routeur Chi
 	r := chi.NewRouter()
 
 	r.Use(cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"}, // Allow all origins
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},                    // Allow specific HTTP methods
-		AllowedHeaders:   []string{"Content-Type", "Authorization"},                   // Allow specific headers
-		AllowCredentials: true,                                                      // Allow credentials (cookies, authorization headers)
+		AllowedOrigins:   []string{"*"},                             // Allow all origins
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},  // Allow specific HTTP methods
+		AllowedHeaders:   []string{"Content-Type", "Authorization"}, // Allow specific headers
+		AllowCredentials: true,                                      // Allow credentials (cookies, authorization headers)
 	}).Handler)
 
 	// Routes pour les ressources (resources)
 	r.Route("/resources", func(r chi.Router) {
 		r.Get("/", Resources.GetAllResourcesHandler) // GET /config/resources
-		r.Post("/", Resources.CreateResourceHandler)  // POST /config/resources
+		r.Post("/", Resources.CreateResourceHandler) // POST /config/resources
 		// Route pour les opérations sur une ressource spécifique
 		r.Route("/{resourceId}", func(r chi.Router) { // Assurez-vous que le paramètre s'appelle "{id}"
-			r.Use(controllers.Ctx("resourceId")) // Utiliser controllers.Ctx ici
-			r.Get("/", Resources.GetResourceByIDHandler)    // GET /config/resources/{id}
-			r.Put("/", Resources.UpdateResourceHandler)     // PUT /config/resources/{id}
-			r.Delete("/", Resources.DeleteResourceHandler)   // DELETE /config/resources/{id}
+			r.Use(controllers.Ctx("resourceId"))           // Utiliser controllers.Ctx ici
+			r.Get("/", Resources.GetResourceByIDHandler)   // GET /config/resources/{id}
+			r.Put("/", Resources.UpdateResourceHandler)    // PUT /config/resources/{id}
+			r.Delete("/", Resources.DeleteResourceHandler) // DELETE /config/resources/{id}
 		})
 	})
 
 	// Routes pour les alertes (alerts)
 	r.Route("/alerts", func(r chi.Router) {
 		r.Get("/", Alerts.GetAllAlertsHandler) // GET /config/alerts
-		r.Post("/", Alerts.CreateAlertHandler)  // POST /config/alerts
+		r.Post("/", Alerts.CreateAlertHandler) // POST /config/alerts
 		r.Route("/{alertId}", func(r chi.Router) {
-			r.Use(controllers.Ctx("alertId")) // Utiliser controllers.Ctx ici
-			r.Get("/", Alerts.GetAlertByIDHandler)    // GET /config/alerts/{id}
-			r.Put("/", Alerts.UpdateAlertHandler)     // PUT /config/alerts/{id}
-			r.Delete("/", Alerts.DeleteAlertHandler)   // DELETE /config/alerts/{id}
+			r.Use(controllers.Ctx("alertId"))        // Utiliser controllers.Ctx ici
+			r.Get("/", Alerts.GetAlertByIDHandler)   // GET /config/alerts/{id}
+			r.Put("/", Alerts.UpdateAlertHandler)    // PUT /config/alerts/{id}
+			r.Delete("/", Alerts.DeleteAlertHandler) // DELETE /config/alerts/{id}
 		})
 	})
 
@@ -120,7 +97,7 @@ func main() {
 
 	// Démarrer le serveur dans un goroutine
 	go func() {
-		log.Println("Web server started. Listening on :"+port)
+		log.Println("Web server started. Listening on :" + port)
 		if err := server.ListenAndServe(); err != http.ErrServerClosed {
 			log.Fatalf("Error starting server: %v", err)
 		}
