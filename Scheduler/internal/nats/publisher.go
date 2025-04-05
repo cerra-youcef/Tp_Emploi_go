@@ -15,7 +15,7 @@ func InitNATS() {
 	if err != nil {
 		log.Fatal("Failed to connect to NATS:", err)
 	}
-	
+
 	// Get JetStream context
 	jsc, err = nc.JetStream()
 	if err != nil {
@@ -26,6 +26,15 @@ func InitNATS() {
 	_, err = jsc.AddStream(&nats.StreamConfig{
 		Name:     "EVENTS",
 		Subjects: []string{"EVENTS.>"},
+	})
+	if err != nil {
+		log.Fatal("Failed to create stream:", err)
+	}
+
+	// Initialize stream
+	_, err = jsc.AddStream(&nats.StreamConfig{
+		Name:     "ALERTS",
+		Subjects: []string{"ALERTS.>"},
 	})
 	if err != nil {
 		log.Fatal("Failed to create stream:", err)

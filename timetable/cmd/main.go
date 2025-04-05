@@ -5,28 +5,30 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"github.com/joho/godotenv"
 	"os/signal"
 	"syscall"
 	"time"
-	"timetable/internal/helpers"
-	"timetable/internal/controllers/Events"
-	"timetable/internal/controllers"
-	"github.com/go-chi/chi/v5"
-	"github.com/swaggo/http-swagger"
-	"github.com/go-chi/cors"
 	_ "timetable/api"
-	"timetable/internal/nats/consumer"
+	"timetable/internal/controllers"
+	"timetable/internal/controllers/Events"
+	"timetable/internal/helpers"
+	natsConsumer "timetable/internal/nats/consumer"
+	natsPublisher "timetable/internal/nats/publisher"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
+	"github.com/joho/godotenv"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func main() {
 
 	err := godotenv.Load()
-    if err != nil {
-        log.Fatalf("Error loading .env file: %s", err.Error())
-    }
+	if err != nil {
+		log.Fatalf("Error loading .env file: %s", err.Error())
+	}
 
-    port := os.Getenv("PORT")
+	port := os.Getenv("PORT")
 
 	//Initialisation de la base de données
 	db, err := helpers.OpenDB()
@@ -34,7 +36,7 @@ func main() {
 		log.Fatalf("Error while opening database: %s", err.Error())
 	}
 	defer helpers.CloseDB(db)
-	
+
 	// Vérification initiale des tables dans la base de données
 	if err := helpers.InitializeDB(db); err != nil {
 		log.Fatalf("Error initializing database: %s", err.Error())
@@ -45,6 +47,9 @@ func main() {
 
 	//Start NATS Consumer in a Goroutine with context
 	go func() {
+		log.Println("Init NATS ...")
+		natsPublisher.InitNATS()
+
 		log.Println("Starting NATS Consumer...")
 		js, nc, err := natsConsumer.ConnectToNATS()
 		if err != nil {
@@ -66,24 +71,23 @@ func main() {
 		}
 	}()
 
-
 	// Création du routeur Chi
 	r := chi.NewRouter()
 
 	r.Use(cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"}, // Allow all origins
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},                    // Allow specific HTTP methods
-		AllowedHeaders:   []string{"Content-Type", "Authorization"},                   // Allow specific headers
-		AllowCredentials: true,                                                      // Allow credentials (cookies, authorization headers)
+		AllowedOrigins:   []string{"*"},                             // Allow all origins
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},  // Allow specific HTTP methods
+		AllowedHeaders:   []string{"Content-Type", "Authorization"}, // Allow specific headers
+		AllowCredentials: true,                                      // Allow credentials (cookies, authorization headers)
 	}).Handler)
 
 	// Routes pour les événements (events)
 	r.Route("/events", func(r chi.Router) {
-		r.Get("/", Events.GetEventsHandler) // GET /timetable/events
+		r.Get("/", Events.GetEventsHandler)    // GET /timetable/events
 		r.Post("/", Events.CreateEventHandler) // POST /timetable/events
 		r.Route("/{eventId}", func(r chi.Router) {
-			r.Use(controllers.Ctx("eventId")) // Utiliser controllers.Ctx ici
-			r.Get("/", Events.GetEventByIDHandler)    // GET /timetable/events/{id}
+			r.Use(controllers.Ctx("eventId"))      // Utiliser controllers.Ctx ici
+			r.Get("/", Events.GetEventByIDHandler) // GET /timetable/events/{id}
 		})
 	})
 
@@ -107,7 +111,7 @@ func main() {
 
 	// Démarrer le serveur dans un goroutine
 	go func() {
-		log.Println("Web server started. Listening on :"+port)
+		log.Println("Web server started. Listening on :" + port)
 		if err := server.ListenAndServe(); err != http.ErrServerClosed {
 			log.Fatalf("Error starting server: %v", err)
 		}

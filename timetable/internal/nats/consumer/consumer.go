@@ -7,7 +7,6 @@ import (
 	"time"
 	"timetable/internal/models"
 	"timetable/internal/services/Events"
-	"timetable/internal/nats/publisher"
 
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
@@ -60,7 +59,7 @@ func EventConsumer(js jetstream.JetStream) (*jetstream.Consumer, error) {
 
 // Consume messages from NATS and store in DB
 func Consume(consumer jetstream.Consumer) error {
-	natsPublisher.InitNATS();
+
 	var receivedEvents []models.Event // Store received events
 	cc, err := consumer.Consume(func(msg jetstream.Msg) {
 
@@ -68,8 +67,8 @@ func Consume(consumer jetstream.Consumer) error {
 
 		//if all events are received we can check for removed ones
 		if subject == "EVENTS.end" {
-			if  err := Events.DeleteRemovedEvents(receivedEvents); err != nil {
-				log.Println("Error Deleting Event and publishing alert : ", err)		
+			if err := Events.DeleteRemovedEvents(receivedEvents); err != nil {
+				log.Println("Error Deleting Event and publishing alert : ", err)
 			}
 			_ = msg.Ack()
 			return
@@ -83,7 +82,7 @@ func Consume(consumer jetstream.Consumer) error {
 		}
 		receivedEvents = append(receivedEvents, event) // Track received events
 
-		existingEvent, err := Events.GetEventByUID(event.UID); 
+		existingEvent, err := Events.GetEventByUID(event.UID)
 		if err != nil {
 			log.Println("Error checking event existence:", err)
 			_ = msg.Nak()
@@ -92,11 +91,11 @@ func Consume(consumer jetstream.Consumer) error {
 		//create event if it doesnt exist or update it otherwise & publish alert
 		if existingEvent == nil {
 			if err := Events.CreateAndNotifyEvent(event); err != nil {
-				log.Println("Error Creating Event and publishing alert : ", err)		
+				log.Println("Error Creating Event and publishing alert : ", err)
 			}
 		} else {
 			if err := Events.UpdateAndNotifyEvent(*existingEvent, event); err != nil {
-				log.Println("Error Updating Event and publishing alert : ", err)		
+				log.Println("Error Updating Event and publishing alert : ", err)
 			}
 		}
 		_ = msg.Ack()

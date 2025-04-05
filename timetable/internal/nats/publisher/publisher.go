@@ -5,8 +5,9 @@ import (
 	"errors"
 	"log"
 
-	"github.com/nats-io/nats.go"
 	"timetable/internal/models"
+
+	"github.com/nats-io/nats.go"
 )
 
 var jsc nats.JetStreamContext
@@ -17,7 +18,7 @@ func InitNATS() {
 	if err != nil {
 		log.Fatal("Failed to connect to NATS:", err)
 	}
-	
+
 	// Get JetStream context
 	jsc, err = nc.JetStream()
 	if err != nil {
@@ -28,6 +29,15 @@ func InitNATS() {
 	_, err = jsc.AddStream(&nats.StreamConfig{
 		Name:     "ALERTS",
 		Subjects: []string{"ALERTS.>"},
+	})
+	if err != nil {
+		log.Fatal("Failed to create stream:", err)
+	}
+
+	// Initialize stream
+	_, err = jsc.AddStream(&nats.StreamConfig{
+		Name:     "EVENTS",
+		Subjects: []string{"EVENTS.>"},
 	})
 	if err != nil {
 		log.Fatal("Failed to create stream:", err)
@@ -43,7 +53,7 @@ func PublishAlert(subject string, alert models.Alert) error {
 	}
 
 	// Publish the alert to the "alerts" subject
-	pubAckFuture, err := jsc.PublishAsync("ALERTS." + subject, messageBytes)
+	pubAckFuture, err := jsc.PublishAsync("ALERTS."+subject, messageBytes)
 	if err != nil {
 		return err
 	}
