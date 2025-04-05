@@ -1,6 +1,7 @@
 package main
 
 import (
+	"alerter/internal/alerter"
 	"log"
 	"os"
 
@@ -8,7 +9,6 @@ import (
 )
 
 func main() {
-	log.Println("Scheduler Service Started")
 
 	err := godotenv.Load()
 	if err != nil {
@@ -20,14 +20,31 @@ func main() {
 		log.Fatal("CONFIG_URL not set in .env file")
 	}
 
-	ucaURL := os.Getenv("UCA_URL")
-	if ucaURL == "" {
-		log.Fatal("UCA_URL not set in .env file")
+	ttURL := os.Getenv("TIMETABLE_URL")
+	if ttURL == "" {
+		log.Fatal("TIMETABLE_URL not set in .env file")
 	}
 
-	// Initialize NATS connection
-	//nats.InitNATS()
+	//Start NATS Consumer in a Goroutine with context
+	go func() {
+		log.Println("Starting NATS Consumer...")
+		js, nc, err := alerter.ConnectToNATS()
+		if err != nil {
+			log.Printf("Error connecting to NATS: %v", err)
+			return //to keep the api runnig
+		}
+		defer nc.Close()
 
-	// Start scheduler
-	//scheduler.StartScheduler(configURL, ucaURL)
+		consumer, err := alerter.AlertConsumer(js)
+		if err != nil {
+			log.Printf("Error creating NATS Consumer: %v", err)
+			return //to keep the api runnig
+		}
+
+		err = alerter.Consume(*consumer) // Pass the context with DB
+		if err != nil {
+			log.Printf("Error consuming messages: %v", err)
+			return //to keep the api runnig
+		}
+	}()
 }
