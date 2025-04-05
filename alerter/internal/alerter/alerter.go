@@ -4,76 +4,119 @@ import (
 	"alerter/internal/models"
 	"context"
 	"encoding/json"
-	"log"
+	"errors"
+	"log/slog"
 	"time"
 
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 )
 
-// Connect to NATS and create a JetStream context
-func ConnectToNATS() (jetstream.JetStream, *nats.Conn, error) {
-	nc, err := nats.Connect(nats.DefaultURL) // Default: "nats://localhost:4222"
+const (
+	streamName     = "ALERTS"
+	consumerName   = "alertsConsumer"
+	defaultSubject = "ALERTS.>"
+)
+
+var (
+	js jetstream.JetStream
+	nc *nats.Conn
+)
+
+// InitNATS initializes NATS connection and creates stream if not exists
+func InitNATS() error {
+	var err error
+	nc, err = nats.Connect(nats.DefaultURL)
 	if err != nil {
-		return nil, nil, err
+		return errors.New("failed to connect to NATS: " + err.Error())
 	}
 
-	js, err := jetstream.New(nc)
+	js, err = jetstream.New(nc)
 	if err != nil {
-		return nil, nil, err
+		return errors.New("failed to create JetStream context: " + err.Error())
 	}
-	return js, nc, nil
-}
 
-// Create or retrieve a Durable Consumer
-func AlertConsumer(js jetstream.JetStream) (*jetstream.Consumer, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	// Get existing stream
-	stream, err := js.Stream(ctx, "ALERTS")
+	// Check if stream exists first
+	_, err = js.Stream(ctx, streamName)
 	if err != nil {
-		return nil, err
-	}
-
-	// Get or create a durable consumer
-	consumer, err := stream.Consumer(ctx, "alertsConsumer")
-	if err != nil {
-		// Create if it doesn’t exist
-		consumer, err = stream.CreateConsumer(ctx, jetstream.ConsumerConfig{
-			Durable:     "alertsConsumer",
-			Name:        "alertsConsumer",
-			Description: "Consumes alerts from timetable",
+		_, err = js.CreateStream(ctx, jetstream.StreamConfig{
+			Name:     streamName,
+			Subjects: []string{defaultSubject},
 		})
 		if err != nil {
-			return nil, err
+			return errors.New("failed to create stream: " + err.Error())
 		}
-		log.Println("Created new consumer")
-	} else {
-		log.Println("Using existing consumer")
+		slog.Info("NATS stream created", "stream", streamName)
 	}
 
-	return &consumer, nil
+	slog.Info("NATS initialized successfully")
+	return nil
 }
 
-func Consume(consumer jetstream.Consumer) error {
+// GetConsumer gets or creates a durable consumer
+func GetConsumer(ctx context.Context) (jetstream.Consumer, error) {
+	stream, err := js.Stream(ctx, streamName)
+	if err != nil {
+		return nil, errors.New("failed to get stream: " + err.Error())
+	}
+
+	consumer, err := stream.Consumer(ctx, consumerName)
+	if err == nil {
+		slog.Info("Using existing consumer", "consumer", consumerName)
+		return consumer, nil
+	}
+
+	slog.Info("Creating new consumer", "consumer", consumerName)
+	return stream.CreateConsumer(ctx, jetstream.ConsumerConfig{
+		Durable:       consumerName,
+		AckPolicy:     jetstream.AckExplicitPolicy,
+		DeliverPolicy: jetstream.DeliverAllPolicy,
+	})
+}
+
+// ConsumeMessages starts consuming messages with context support
+func ConsumeMessages(ctx context.Context) error {
+	consumer, err := GetConsumer(ctx)
+	if err != nil {
+		return errors.New("failed to get consumer: " + err.Error())
+	}
 
 	cc, err := consumer.Consume(func(msg jetstream.Msg) {
-
-		var alert models.AlertConsumer
-		if err := json.Unmarshal(msg.Data(), &alert); err != nil {
-			log.Println("Error decoding alert:", err)
-			_ = msg.Nak()
-			return
-		}
-		log.Println("-> alert type :", alert.Type)
-		log.Println("event :", alert.Event)
-
-		_ = msg.Ack()
+		processMessage(msg)
 	})
+	if err != nil {
+		return errors.New("failed to start consuming: " + err.Error())
+	}
+	defer cc.Stop()
 
-	<-cc.Closed()
-	cc.Stop()
+	slog.Info("Started consuming messages", "subject", defaultSubject)
 
-	return err
+	// Wait for context cancellation
+	<-ctx.Done()
+	slog.Info("Stopping message consumption due to context cancellation")
+	return nil
+}
+
+func processMessage(msg jetstream.Msg) {
+	var alert models.AlertConsumer
+	if err := json.Unmarshal(msg.Data(), &alert); err != nil {
+		slog.Error("Failed to unmarshal alert", "error", err)
+		if err := msg.Nak(); err != nil {
+			slog.Error("Failed to NAK message", "error", err)
+		}
+		return
+	}
+
+	slog.Info("Received alert",
+		"type", alert.Type,
+		"event", alert.Event,
+		"subject", msg.Subject(),
+	)
+
+	if err := msg.Ack(); err != nil {
+		slog.Error("Failed to ACK message", "error", err)
+	}
 }

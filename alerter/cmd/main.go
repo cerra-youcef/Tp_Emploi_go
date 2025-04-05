@@ -2,49 +2,90 @@ package main
 
 import (
 	"alerter/internal/alerter"
-	"log"
+	"context"
+	"errors"
+	"log/slog"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/joho/godotenv"
 )
 
+type Config struct {
+	ConfigURL    string
+	TimetableURL string
+}
+
+func loadConfig() (Config, error) {
+	var cfg Config
+	var ok bool
+
+	if cfg.ConfigURL, ok = os.LookupEnv("CONFIG_URL"); !ok {
+		return cfg, errors.New("CONFIG_URL not set in .env file")
+	}
+
+	if cfg.TimetableURL, ok = os.LookupEnv("TIMETABLE_URL"); !ok {
+		return cfg, errors.New("TIMETABLE_URL not set in .env file")
+	}
+
+	return cfg, nil
+}
+
 func main() {
 
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
 
-	configURL := os.Getenv("CONFIG_URL")
-	if configURL == "" {
-		log.Fatal("CONFIG_URL not set in .env file")
-	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	ttURL := os.Getenv("TIMETABLE_URL")
-	if ttURL == "" {
-		log.Fatal("TIMETABLE_URL not set in .env file")
-	}
-
-	//Start NATS Consumer in a Goroutine with context
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
-		log.Println("Starting NATS Consumer...")
-		js, nc, err := alerter.ConnectToNATS()
-		if err != nil {
-			log.Printf("Error connecting to NATS: %v", err)
-			return //to keep the api runnig
-		}
-		defer nc.Close()
+		sig := <-sigChan
+		slog.Info("Received shutdown signal", "signal", sig)
+		cancel()
+	}()
 
-		consumer, err := alerter.AlertConsumer(js)
-		if err != nil {
-			log.Printf("Error creating NATS Consumer: %v", err)
-			return //to keep the api runnig
-		}
+	// Load environment variables
+	if err := godotenv.Load(); err != nil {
+		slog.Error("Error loading .env file", "error", err)
+		os.Exit(1)
+	}
 
-		err = alerter.Consume(*consumer) // Pass the context with DB
-		if err != nil {
-			log.Printf("Error consuming messages: %v", err)
-			return //to keep the api runnig
+	// Load configuration
+	_, err := loadConfig()
+	if err != nil {
+		slog.Error("Configuration error", "error", err)
+		os.Exit(1)
+	}
+
+	// Initialize NATS
+	if err := alerter.InitNATS(); err != nil {
+		slog.Error("Failed to initialize NATS", "error", err)
+		os.Exit(1)
+	}
+
+	// Start message consumer
+	go func() {
+		slog.Info("Starting message consumer")
+		if err := alerter.ConsumeMessages(ctx); err != nil {
+			slog.Error("Message consumer failed", "error", err)
+			cancel() // Trigger shutdown if consumer fails
 		}
 	}()
+
+	// Wait for shutdown
+	<-ctx.Done()
+
+	// Allow a brief period for graceful shutdown
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer shutdownCancel()
+
+	slog.Info("Shutting down...")
+
+	<-shutdownCtx.Done()
+	slog.Info("Shutdown complete")
 }
