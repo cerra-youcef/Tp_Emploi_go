@@ -2,7 +2,7 @@ package main
 
 import (
 	"alerter/internal/alerter"
-	"alerter/internal/mailSender"
+	"alerter/internal/mailer"
 	"context"
 	"errors"
 	"log/slog"
@@ -89,10 +89,20 @@ func main() {
 
 	// Exemple d'utilisation
 	to := "yanis.beldjilali@etu.uca.fr"
-	subject := "Test"
-	content := "Ceci est un test d'envoi d'email via l'API GCC."
+	data := mailer.TemplateData{
+		EventName:   "Réunion de projet",
+		NewDate:     "15 mars 2024",
+		NewLocation: "Salle B203",
+	}
 
-	err = mailSender.SendEmail(to, subject, content, cfg.mailToken, cfg.apiURL)
+	// Générer le contenu de l'email
+	subject, content, err := mailer.GetEmailContent("templates/mail.html", data)
+	if err != nil {
+		slog.Error("error while generation email template" + err.Error())
+		return
+	}
+
+	err = mailer.SendEmail(to, subject, content, cfg.mailToken, cfg.apiURL)
 	if err != nil {
 		slog.Error("MAIL ERROR", "error", err)
 	} else {

@@ -1,4 +1,4 @@
-package mailSender
+package mailer
 
 import (
 	"bytes"

@@ -10,6 +10,8 @@ require (
 )
 
 require (
+	github.com/BurntSushi/toml v0.3.1 // indirect
+	github.com/adrg/frontmatter v0.2.0 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/nats-io/nats.go v1.41.0 // indirect
 	github.com/nats-io/nkeys v0.4.9 // indirect
@@ -17,4 +19,5 @@ require (
 	golang.org/x/crypto v0.31.0 // indirect
 	golang.org/x/sys v0.28.0 // indirect
 	golang.org/x/text v0.23.0 // indirect
+	gopkg.in/yaml.v2 v2.3.0 // indirect
 )
