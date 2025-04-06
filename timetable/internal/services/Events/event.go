@@ -1,11 +1,12 @@
 package Events
 
 import (
-	"github.com/google/uuid"
-	"timetable/internal/models"
-	"timetable/internal/repositories/Events"
 	"timetable/internal/helpers"
-	"timetable/internal/nats/publisher"
+	"timetable/internal/models"
+	natsPublisher "timetable/internal/nats/publisher"
+	"timetable/internal/repositories/Events"
+
+	"github.com/google/uuid"
 )
 
 // GetEventsByResourceID récupère les événements associés à une ressource spécifique.
@@ -62,7 +63,7 @@ func UpdateAndNotifyEvent(oldEvent, newEvent models.Event) error {
 }
 
 func DeleteAndNotifyEvent(event models.Event) error {
-	if err := DeleteEvent(event.ID); err!= nil {
+	if err := DeleteEvent(event.ID); err != nil {
 		return err
 	}
 	return natsPublisher.PublishAlert("delete", helpers.CreateAlert("event.deleted", event))
@@ -75,7 +76,7 @@ func DeleteRemovedEvents(receivedEvents []models.Event) error {
 		return nil
 	}
 
-	existingEvents, err := GetAllEvents(); 
+	existingEvents, err := GetAllEvents()
 	if err != nil {
 		return err
 	}
@@ -87,7 +88,7 @@ func DeleteRemovedEvents(receivedEvents []models.Event) error {
 
 	for _, storedEvent := range existingEvents {
 		if !receivedUIDs[storedEvent.UID] {
-			if err := DeleteAndNotifyEvent(storedEvent); err!= nil {
+			if err := DeleteAndNotifyEvent(storedEvent); err != nil {
 				return err
 			}
 		}

@@ -83,8 +83,7 @@ func main() {
 
 	// Routes pour les événements (events)
 	r.Route("/events", func(r chi.Router) {
-		r.Get("/", Events.GetEventsHandler)    // GET /timetable/events
-		r.Post("/", Events.CreateEventHandler) // POST /timetable/events
+		r.Get("/", Events.GetEventsHandler) // GET /timetable/events
 		r.Route("/{eventId}", func(r chi.Router) {
 			r.Use(controllers.Ctx("eventId"))      // Utiliser controllers.Ctx ici
 			r.Get("/", Events.GetEventByIDHandler) // GET /timetable/events/{id}
