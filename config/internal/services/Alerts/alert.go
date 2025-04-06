@@ -1,16 +1,16 @@
 package Alerts
 
 import (
-	"github.com/google/uuid"
 	"config/internal/models"
 	"config/internal/repositories/Alerts"
 	"net/http" // Ajoutez cet import si nécessaire
 
+	"github.com/google/uuid"
 )
 
 // GetAllAlerts récupère toutes les alertes.
-func GetAllAlerts() ([]models.Alert, error) {
-	return Alerts.GetAllAlerts()
+func GetAllAlerts(ucaID string) ([]models.Alert, error) {
+	return Alerts.GetAllAlerts(ucaID)
 }
 
 // GetAlertByID récupère une alerte par son ID.

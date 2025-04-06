@@ -31,6 +31,14 @@ const docTemplate = `{
                     "Alerts"
                 ],
                 "summary": "Get all alerts",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter alerts by UCA ID",
+                        "name": "ucaID",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "List of alerts",

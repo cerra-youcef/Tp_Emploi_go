@@ -1,12 +1,13 @@
 package Alerts
 
 import (
-"encoding/json"
-"github.com/sirupsen/logrus"
+	"encoding/json"
 
-"config/internal/services/Alerts"
+	"github.com/sirupsen/logrus"
 
-"net/http"
+	"config/internal/services/Alerts"
+
+	"net/http"
 )
 
 // GetAllAlertsHandler retrieves all alerts.
@@ -15,11 +16,13 @@ import (
 // @Tags Alerts
 // @Accept  json
 // @Produce  json
+// @Param ucaID query string false "Filter alerts by UCA ID"
 // @Success 200 {array} models.Alert "List of alerts"
 // @Failure 500 {string} string "Internal server error"
 // @Router /alerts [get]
 func GetAllAlertsHandler(w http.ResponseWriter, r *http.Request) {
-	alerts, err := Alerts.GetAllAlerts()
+	ucaID := r.URL.Query().Get("ucaID")
+	alerts, err := Alerts.GetAllAlerts(ucaID)
 	if err != nil {
 		logrus.Errorf("Error retrieving alerts: %v", err)
 		http.Error(w, "Failed to retrieve alerts", http.StatusInternalServerError)

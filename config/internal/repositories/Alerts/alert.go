@@ -1,14 +1,15 @@
 package Alerts
 
 import (
-	"database/sql"
-	"github.com/google/uuid"
 	"config/internal/helpers"
 	"config/internal/models"
+	"database/sql"
+
+	"github.com/google/uuid"
 )
 
 // GetAllAlerts récupère toutes les alertes.
-func GetAllAlerts() ([]models.Alert, error) {
+func GetAllAlerts(ucaID string) ([]models.Alert, error) {
 	db, err := helpers.OpenDB() // Déclaration initiale.
 	if err != nil {
 		return nil, err
@@ -20,7 +21,17 @@ func GetAllAlerts() ([]models.Alert, error) {
         FROM alerts
     `
 
-	rows, err := db.Query(query)
+	if ucaID != "" {
+		query += `WHERE resource_id = ?`
+	}
+	var rows *sql.Rows
+
+	if ucaID != "" {
+		rows, err = db.Query(query, ucaID)
+	} else {
+		rows, err = db.Query(query)
+	}
+
 	if err != nil {
 		return nil, err
 	}
