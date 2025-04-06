@@ -1,6 +1,7 @@
 package alerter
 
 import (
+	"alerter/internal/mailer"
 	"alerter/internal/models"
 	"context"
 	"encoding/json"
@@ -22,6 +23,13 @@ var (
 	js jetstream.JetStream
 	nc *nats.Conn
 )
+
+type Config struct {
+	ConfigURL    string
+	TimetableURL string
+	MailToken    string
+	ApiURL       string
+}
 
 // InitNATS initializes NATS connection and creates stream if not exists
 func InitNATS() error {
@@ -78,14 +86,14 @@ func GetConsumer(ctx context.Context) (jetstream.Consumer, error) {
 }
 
 // ConsumeMessages starts consuming messages with context support
-func ConsumeMessages(ctx context.Context) error {
+func ConsumeMessages(ctx context.Context, cfg Config) error {
 	consumer, err := GetConsumer(ctx)
 	if err != nil {
 		return errors.New("failed to get consumer: " + err.Error())
 	}
 
 	cc, err := consumer.Consume(func(msg jetstream.Msg) {
-		processMessage(msg)
+		processMessage(msg, cfg)
 	})
 	if err != nil {
 		return errors.New("failed to start consuming: " + err.Error())
@@ -100,7 +108,7 @@ func ConsumeMessages(ctx context.Context) error {
 	return nil
 }
 
-func processMessage(msg jetstream.Msg) {
+func processMessage(msg jetstream.Msg, cfg Config) {
 	var alert models.Alert
 	if err := json.Unmarshal(msg.Data(), &alert); err != nil {
 		slog.Error("Failed to unmarshal alert", "error", err)
@@ -115,6 +123,41 @@ func processMessage(msg jetstream.Msg) {
 		"event", alert.Event,
 		"subject", msg.Subject(),
 	)
+
+	//build mail
+
+	// Exemple d'utilisation
+	to := "yanis.beldjilali@etu.uca.fr"
+	data := mailer.TemplateData{
+		EventName: alert.Event,
+		Date:      alert.Start,
+		Location:  alert.Location,
+	}
+
+	templateMap := map[string]string{
+		"event.created": "templates/created.html",
+		"event.deleted": "templates/deleted.html",
+		"event.updated": "templates/updated.html",
+	}
+
+	// Générer le contenu de l'email
+	templatePath, exists := templateMap[alert.Type]
+	if !exists {
+		slog.Error("unknown alert type: " + alert.Type)
+		return
+	}
+
+	subject, content, err := mailer.GetEmailContent(templatePath, data)
+	if err != nil {
+		slog.Error("error while generating email template: " + err.Error())
+		return
+	}
+
+	err = mailer.SendEmail(to, subject, content, cfg.MailToken, cfg.ApiURL)
+	if err != nil {
+		slog.Error("error while sending email " + err.Error())
+		return
+	}
 
 	if err := msg.Ack(); err != nil {
 		slog.Error("Failed to ACK message", "error", err)

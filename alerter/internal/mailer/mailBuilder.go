@@ -14,9 +14,9 @@ import (
 var embeddedTemplates embed.FS
 
 type TemplateData struct {
-	EventName   string
-	NewDate     string
-	NewLocation string
+	EventName string
+	Date      string
+	Location  string
 }
 
 type Matter struct {

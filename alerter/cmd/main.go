@@ -2,7 +2,6 @@ package main
 
 import (
 	"alerter/internal/alerter"
-	"alerter/internal/mailer"
 	"context"
 	"errors"
 	"log/slog"
@@ -14,15 +13,8 @@ import (
 	"github.com/joho/godotenv"
 )
 
-type Config struct {
-	ConfigURL    string
-	TimetableURL string
-	mailToken    string
-	apiURL       string
-}
-
-func loadConfig() (Config, error) {
-	var cfg Config
+func loadConfig() (alerter.Config, error) {
+	var cfg alerter.Config
 	var ok bool
 
 	if cfg.ConfigURL, ok = os.LookupEnv("CONFIG_URL"); !ok {
@@ -33,11 +25,11 @@ func loadConfig() (Config, error) {
 		return cfg, errors.New("TIMETABLE_URL not set in .env file")
 	}
 
-	if cfg.mailToken, ok = os.LookupEnv("MAIL_TOKEN"); !ok {
+	if cfg.MailToken, ok = os.LookupEnv("MAIL_TOKEN"); !ok {
 		return cfg, errors.New("MAIL_TOKEN not set in .env file")
 	}
 
-	if cfg.apiURL, ok = os.LookupEnv("API_URL"); !ok {
+	if cfg.ApiURL, ok = os.LookupEnv("API_URL"); !ok {
 		return cfg, errors.New("MAIL_TOKEN not set in .env file")
 	}
 	return cfg, nil
@@ -81,33 +73,11 @@ func main() {
 	// Start message consumer
 	go func() {
 		slog.Info("Starting message consumer")
-		if err := alerter.ConsumeMessages(ctx); err != nil {
+		if err := alerter.ConsumeMessages(ctx, cfg); err != nil {
 			slog.Error("Message consumer failed", "error", err)
 			cancel() // Trigger shutdown if consumer fails
 		}
 	}()
-
-	// Exemple d'utilisation
-	to := "yanis.beldjilali@etu.uca.fr"
-	data := mailer.TemplateData{
-		EventName:   "Réunion de projet",
-		NewDate:     "15 mars 2024",
-		NewLocation: "Salle B203",
-	}
-
-	// Générer le contenu de l'email
-	subject, content, err := mailer.GetEmailContent("templates/mail.html", data)
-	if err != nil {
-		slog.Error("error while generation email template" + err.Error())
-		return
-	}
-
-	err = mailer.SendEmail(to, subject, content, cfg.mailToken, cfg.apiURL)
-	if err != nil {
-		slog.Error("MAIL ERROR", "error", err)
-	} else {
-		slog.Error("NO ERROR", "succes", err)
-	}
 
 	// Wait for shutdown
 	<-ctx.Done()
