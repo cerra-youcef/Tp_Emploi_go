@@ -463,9 +463,6 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
-                "is_all": {
-                    "type": "boolean"
-                },
                 "resourceId": {
                     "type": "string"
                 }
