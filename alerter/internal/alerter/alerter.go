@@ -6,7 +6,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io/ioutil"
 	"log/slog"
+	"net/http"
 	"time"
 
 	"github.com/nats-io/nats.go"
@@ -118,23 +121,17 @@ func processMessage(msg jetstream.Msg, cfg Config) {
 		return
 	}
 
-	slog.Info("Received alert",
-		"type", alert.Type,
-		"event", alert.Event,
-		"subject", msg.Subject(),
-	)
-
 	//build mail
+	//get to mail :
 
-	// Exemple d'utilisation
-	to := "yanis.beldjilali@etu.uca.fr"
+	//mail data
 	data := mailer.TemplateData{
 		EventName: alert.Event,
 		Date:      alert.Start,
 		Location:  alert.Location,
 		Changes:   alert.Changes,
 	}
-
+	//build mail content
 	templateMap := map[string]string{
 		"event.created": "templates/created.html",
 		"event.deleted": "templates/deleted.html",
@@ -154,13 +151,57 @@ func processMessage(msg jetstream.Msg, cfg Config) {
 		return
 	}
 
-	err = mailer.SendEmail(to, subject, content, cfg.MailToken, cfg.ApiURL)
-	if err != nil {
-		slog.Error("error while sending email " + err.Error())
-		return
+	for _, resource := range alert.Resources {
+		fetchedAlerts, err := FetchAlertsByResource(cfg.ConfigURL, resource)
+		if err != nil {
+			slog.Error("failed to get alerts: ", "error", err)
+			return
+		}
+
+		for _, fetchedAlert := range fetchedAlerts {
+			to := fetchedAlert
+			err = mailer.SendEmail(to, subject, content, cfg.MailToken, cfg.ApiURL)
+			if err != nil {
+				slog.Error("error while sending email " + err.Error())
+				return
+			}
+
+			if err := msg.Ack(); err != nil {
+				slog.Error("Failed to ACK message", "error", err)
+			}
+
+		}
+
 	}
 
-	if err := msg.Ack(); err != nil {
-		slog.Error("Failed to ACK message", "error", err)
+}
+
+func FetchAlertsByResource(apiURL string, resource int) ([]string, error) {
+	// Convert resource ID to string for the URL
+	resp, err := http.Get(fmt.Sprintf("%s/alerts?ucaID=%d", apiURL, resource))
+	if err != nil {
+		return nil, err
 	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	// Unmarshal into a slice of structs containing just the email
+	var alerts []struct {
+		Email string `json:"email"`
+	}
+	if err := json.Unmarshal(body, &alerts); err != nil {
+		return nil, err
+	}
+
+	// Extract just the emails into a string slice
+	emails := make([]string, len(alerts))
+	for i, alert := range alerts {
+		emails[i] = alert.Email
+	}
+
+	return emails, nil
 }
