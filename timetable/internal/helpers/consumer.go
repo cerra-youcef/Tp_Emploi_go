@@ -2,6 +2,7 @@ package helpers
 
 import (
 	//	"log"
+	"time"
 	"timetable/internal/models"
 
 	"github.com/google/uuid"
@@ -9,11 +10,16 @@ import (
 
 func CreateAlert(alertType string, event models.Event, changes ...map[string]string) models.Alert {
 
+	t, _ := time.Parse("20060102T150405Z", event.Start)
+	formatted_date := t.Format("2006-01-02 15:04:05")
+
 	alert := models.Alert{
 		ID:        uuid.New(),
 		Type:      alertType,
 		Event:     event.Name,
 		Resources: event.Resources,
+		Location:  event.Location,
+		Start:     formatted_date,
 	}
 
 	if len(changes) > 0 {
