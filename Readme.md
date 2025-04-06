@@ -12,3 +12,5 @@
 - alert ; preconfigure , email (groupe), 
 - switch to uuid
 - split alert consumer maybe
+- recieve alerts, fetch, build email and send
+- push alerts,
