@@ -101,7 +101,7 @@ func ConsumeMessages(ctx context.Context) error {
 }
 
 func processMessage(msg jetstream.Msg) {
-	var alert models.AlertConsumer
+	var alert models.Alert
 	if err := json.Unmarshal(msg.Data(), &alert); err != nil {
 		slog.Error("Failed to unmarshal alert", "error", err)
 		if err := msg.Nak(); err != nil {
