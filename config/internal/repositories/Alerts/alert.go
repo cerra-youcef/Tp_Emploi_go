@@ -90,7 +90,7 @@ func CreateAlert(alert *models.Alert) error {
 
 	query := `
         INSERT INTO alerts (id, email, resource_id)
-        VALUES (?, ?, ?, ?)
+        VALUES (?, ?, ?)
     `
 
 	result, err := db.Exec(query, alert.ID, alert.Email, alert.ResourceID)
@@ -116,7 +116,7 @@ func UpdateAlert(id uuid.UUID, alert *models.Alert) error {
 
 	query := `
         UPDATE alerts
-        SET email = ? = ?, resource_id = ?
+        SET email = ?, resource_id = ?
         WHERE id = ?
     `
 
