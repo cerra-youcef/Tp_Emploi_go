@@ -1,17 +1,19 @@
 package helpers
 
 import (
-//	"log"
+	//	"log"
 	"timetable/internal/models"
+
 	"github.com/google/uuid"
 )
 
-func CreateAlert(alertType string, event models.Event, changes ...map[string]string) models.Alert{
+func CreateAlert(alertType string, event models.Event, changes ...map[string]string) models.Alert {
 
 	alert := models.Alert{
-		ID:    uuid.New(),
-		Type:  alertType,
-		Event: event.ID, 
+		ID:        uuid.New(),
+		Type:      alertType,
+		Event:     event.Name,
+		Resources: event.Resources,
 	}
 
 	if len(changes) > 0 {

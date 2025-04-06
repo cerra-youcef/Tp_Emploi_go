@@ -5,8 +5,9 @@ import (
 )
 
 type Alert struct {
-	ID          uuid.UUID	`json:"id"`
-	Type		string		`json:"type"`
-	Changes 	map[string]string		`json:"changes`	
-	Event 		uuid.UUID `json:"event"`
+	ID        uuid.UUID         `json:"id"`
+	Type      string            `json:"type"`
+	Changes   map[string]string `json:"changes`
+	Event     string            `json:"event"`
+	Resources []int             `json:"resources"`
 }
