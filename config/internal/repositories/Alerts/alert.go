@@ -17,7 +17,7 @@ func GetAllAlerts(ucaID string) ([]models.Alert, error) {
 	defer helpers.CloseDB(db)
 
 	query := `
-        SELECT id, email, is_all, resource_id
+        SELECT id, email, resource_id
         FROM alerts
     `
 
@@ -40,7 +40,7 @@ func GetAllAlerts(ucaID string) ([]models.Alert, error) {
 	var alerts []models.Alert
 	for rows.Next() {
 		var alert models.Alert
-		err = rows.Scan(&alert.ID, &alert.Email, &alert.All, &alert.ResourceID)
+		err = rows.Scan(&alert.ID, &alert.Email, &alert.ResourceID)
 		if err != nil {
 			return nil, err
 		}
@@ -59,13 +59,13 @@ func GetAlertByID(id uuid.UUID) (*models.Alert, error) {
 	defer helpers.CloseDB(db)
 
 	query := `
-        SELECT id, email, is_all, resource_id
+        SELECT id, email, resource_id
         FROM alerts
         WHERE id = ?
     `
 
 	var alert models.Alert
-	err = db.QueryRow(query, id).Scan(&alert.ID, &alert.Email, &alert.All, &alert.ResourceID)
+	err = db.QueryRow(query, id).Scan(&alert.ID, &alert.Email, &alert.ResourceID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil // Retourne nil si l'alerte n'existe pas.
@@ -89,11 +89,11 @@ func CreateAlert(alert *models.Alert) error {
 	defer helpers.CloseDB(db)
 
 	query := `
-        INSERT INTO alerts (id, email, is_all, resource_id)
+        INSERT INTO alerts (id, email, resource_id)
         VALUES (?, ?, ?, ?)
     `
 
-	result, err := db.Exec(query, alert.ID, alert.Email, alert.All, alert.ResourceID)
+	result, err := db.Exec(query, alert.ID, alert.Email, alert.ResourceID)
 	if err != nil {
 		return err
 	}
@@ -116,11 +116,11 @@ func UpdateAlert(id uuid.UUID, alert *models.Alert) error {
 
 	query := `
         UPDATE alerts
-        SET email = ?, is_all = ?, resource_id = ?
+        SET email = ? = ?, resource_id = ?
         WHERE id = ?
     `
 
-	result, err := db.Exec(query, alert.Email, alert.All, alert.ResourceID, id)
+	result, err := db.Exec(query, alert.Email, alert.ResourceID, id)
 	if err != nil {
 		return err
 	}

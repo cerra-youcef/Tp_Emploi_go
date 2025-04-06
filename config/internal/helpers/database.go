@@ -1,8 +1,8 @@
 package helpers
 
 import (
-	"database/sql"
 	"context"
+	"database/sql"
 	"log"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -22,7 +22,6 @@ func InitializeDB(db *sql.DB) error {
         CREATE TABLE IF NOT EXISTS alerts (
             id TEXT PRIMARY KEY,
             email TEXT NOT NULL,
-            is_all BOOLEAN NOT NULL,
             resource_id TEXT
         );
     `
@@ -82,4 +81,3 @@ func CloseDB(db *sql.DB) {
 		log.Printf("Error closing database: %v", err)
 	}
 }
-

@@ -7,6 +7,5 @@ import (
 type Alert struct {
 	ID         uuid.UUID `json:"id"`
 	Email      string    `json:"email"`
-	All        bool      `json:"is_all"`
 	ResourceID string    `json:"resourceId,omitempty"`
 }
