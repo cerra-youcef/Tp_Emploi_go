@@ -62,50 +62,6 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "post": {
-                "description": "Creates a new event in the system. The event must include details like the event name, description, start time, and resource associations.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "events"
-                ],
-                "summary": "Create a new event",
-                "parameters": [
-                    {
-                        "description": "Event to create",
-                        "name": "event",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Event"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Event created successfully",
-                        "schema": {
-                            "$ref": "#/definitions/models.Event"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request body",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
             }
         },
         "/events/{eventId}": {
@@ -163,16 +119,8 @@ const docTemplate = `{
         "models.Event": {
             "type": "object",
             "properties": {
-                "created_at": {
-                    "description": "Date de création",
-                    "type": "string"
-                },
                 "description": {
                     "description": "Description de l'événement",
-                    "type": "string"
-                },
-                "dtStamp": {
-                    "description": "Horodatage",
                     "type": "string"
                 },
                 "end": {
@@ -191,11 +139,11 @@ const docTemplate = `{
                     "description": "Nom de l'événement",
                     "type": "string"
                 },
-                "resourceIds": {
-                    "description": "IDs des ressources associées",
+                "resources": {
+                    "description": "ID des ressource associée",
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "type": "integer"
                     }
                 },
                 "start": {

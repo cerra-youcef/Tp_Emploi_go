@@ -2,14 +2,8 @@ basePath: /
 definitions:
   models.Event:
     properties:
-      created_at:
-        description: Date de création
-        type: string
       description:
         description: Description de l'événement
-        type: string
-      dtStamp:
-        description: Horodatage
         type: string
       end:
         description: Heure de fin (chaîne pour compatibilité)
@@ -23,10 +17,10 @@ definitions:
       name:
         description: Nom de l'événement
         type: string
-      resourceIds:
-        description: IDs des ressources associées
+      resources:
+        description: ID des ressource associée
         items:
-          type: string
+          type: integer
         type: array
       start:
         description: Heure de début
@@ -75,36 +69,6 @@ paths:
           schema:
             type: string
       summary: Get all events or filter by resource ID
-      tags:
-      - events
-    post:
-      consumes:
-      - application/json
-      description: Creates a new event in the system. The event must include details
-        like the event name, description, start time, and resource associations.
-      parameters:
-      - description: Event to create
-        in: body
-        name: event
-        required: true
-        schema:
-          $ref: '#/definitions/models.Event'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Event created successfully
-          schema:
-            $ref: '#/definitions/models.Event'
-        "400":
-          description: Invalid request body
-          schema:
-            type: string
-        "500":
-          description: Internal server error
-          schema:
-            type: string
-      summary: Create a new event
       tags:
       - events
   /events/{eventId}:
