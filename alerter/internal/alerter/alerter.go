@@ -132,6 +132,7 @@ func processMessage(msg jetstream.Msg, cfg Config) {
 		EventName: alert.Event,
 		Date:      alert.Start,
 		Location:  alert.Location,
+		Changes:   alert.Changes,
 	}
 
 	templateMap := map[string]string{
@@ -147,7 +148,7 @@ func processMessage(msg jetstream.Msg, cfg Config) {
 		return
 	}
 
-	subject, content, err := mailer.GetEmailContent(templatePath, data)
+	subject, content, err := mailer.GetEmailContent(templatePath, data, alert.Type)
 	if err != nil {
 		slog.Error("error while generating email template: " + err.Error())
 		return
