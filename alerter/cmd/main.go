@@ -2,6 +2,7 @@ package main
 
 import (
 	"alerter/internal/alerter"
+	"alerter/internal/helpers"
 	"context"
 	"errors"
 	"log/slog"
@@ -13,8 +14,8 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func loadConfig() (alerter.Config, error) {
-	var cfg alerter.Config
+func loadConfig() (helpers.Config, error) {
+	var cfg helpers.Config
 	var ok bool
 
 	if cfg.ConfigURL, ok = os.LookupEnv("CONFIG_URL"); !ok {
