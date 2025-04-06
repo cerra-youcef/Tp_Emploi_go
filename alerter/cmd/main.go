@@ -4,7 +4,6 @@ import (
 	"alerter/internal/alerter"
 	"alerter/internal/helpers"
 	"context"
-	"errors"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -13,28 +12,6 @@ import (
 
 	"github.com/joho/godotenv"
 )
-
-func loadConfig() (helpers.Config, error) {
-	var cfg helpers.Config
-	var ok bool
-
-	if cfg.ConfigURL, ok = os.LookupEnv("CONFIG_URL"); !ok {
-		return cfg, errors.New("CONFIG_URL not set in .env file")
-	}
-
-	if cfg.TimetableURL, ok = os.LookupEnv("TIMETABLE_URL"); !ok {
-		return cfg, errors.New("TIMETABLE_URL not set in .env file")
-	}
-
-	if cfg.MailToken, ok = os.LookupEnv("MAIL_TOKEN"); !ok {
-		return cfg, errors.New("MAIL_TOKEN not set in .env file")
-	}
-
-	if cfg.ApiURL, ok = os.LookupEnv("API_URL"); !ok {
-		return cfg, errors.New("MAIL_TOKEN not set in .env file")
-	}
-	return cfg, nil
-}
 
 func main() {
 
@@ -59,7 +36,7 @@ func main() {
 	}
 
 	// Load configuration
-	cfg, err := loadConfig()
+	cfg, err := helpers.LoadConfig()
 	if err != nil {
 		slog.Error("Configuration error", "error", err)
 		os.Exit(1)

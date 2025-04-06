@@ -12,7 +12,9 @@ import (
 
 // Builds and sends emails
 func ProcessMessage(msg jetstream.Msg, cfg helpers.Config) {
+
 	var alert models.Alert
+
 	if err := json.Unmarshal(msg.Data(), &alert); err != nil {
 		slog.Error("Failed to unmarshal alert", "error", err)
 		if err := msg.Nak(); err != nil {
@@ -27,14 +29,14 @@ func ProcessMessage(msg jetstream.Msg, cfg helpers.Config) {
 		Location:  alert.Location,
 		Changes:   alert.Changes,
 	}
-	//build mail content
+
+	//build mail content from template
 	templateMap := map[string]string{
 		"event.created": "templates/created.html",
 		"event.deleted": "templates/deleted.html",
 		"event.updated": "templates/updated.html",
 	}
 
-	// Générer le contenu de l'email
 	templatePath, exists := templateMap[alert.Type]
 	if !exists {
 		slog.Error("unknown alert type: " + alert.Type)

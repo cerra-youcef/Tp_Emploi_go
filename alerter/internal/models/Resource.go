@@ -1,8 +1,7 @@
-
 package models
 
 import (
-"github.com/google/uuid"
+	"github.com/google/uuid"
 )
 
 type Resource struct {
@@ -10,4 +9,3 @@ type Resource struct {
 	UcaId int       `json:"uca_id"`
 	Name  string    `json:"name"`
 }
-

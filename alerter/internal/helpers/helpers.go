@@ -2,9 +2,11 @@ package helpers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 )
 
 type Config struct {
@@ -14,6 +16,7 @@ type Config struct {
 	ApiURL       string
 }
 
+// Fetch alerts from Config to get emails
 func FetchAlertsByResource(apiURL string, resource int) ([]string, error) {
 	// Convert resource ID to string for the URL
 	resp, err := http.Get(fmt.Sprintf("%s/alerts?ucaID=%d", apiURL, resource))
@@ -42,4 +45,26 @@ func FetchAlertsByResource(apiURL string, resource int) ([]string, error) {
 	}
 
 	return emails, nil
+}
+
+func LoadConfig() (Config, error) {
+	var cfg Config
+	var ok bool
+
+	if cfg.ConfigURL, ok = os.LookupEnv("CONFIG_URL"); !ok {
+		return cfg, errors.New("CONFIG_URL not set in .env file")
+	}
+
+	if cfg.TimetableURL, ok = os.LookupEnv("TIMETABLE_URL"); !ok {
+		return cfg, errors.New("TIMETABLE_URL not set in .env file")
+	}
+
+	if cfg.MailToken, ok = os.LookupEnv("MAIL_TOKEN"); !ok {
+		return cfg, errors.New("MAIL_TOKEN not set in .env file")
+	}
+
+	if cfg.ApiURL, ok = os.LookupEnv("API_URL"); !ok {
+		return cfg, errors.New("MAIL_TOKEN not set in .env file")
+	}
+	return cfg, nil
 }
